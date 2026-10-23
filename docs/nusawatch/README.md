@@ -163,6 +163,46 @@ Docker does the copy for you (`Dockerfile`, runtime stage) and starts
    `failed` carries the reason.
 6. Do not put a CDN in front of `/api/` that strips `X-NusaWatch-Partial`.
 
+## Deploy on Vercel
+
+Vercel is supported: `next.config.ts` drops the standalone output when it sees
+`VERCEL`, precisely because standalone packaging breaks the Vercel adapter. A
+`VERCEL=1 npm run build` was run against this commit and the resulting server
+answered the full fenced matrix.
+
+1. Import the repository, framework preset **Next.js**.
+2. Build Command: `npm run build` (its `prebuild` copies the MapLibre worker;
+   those files are also committed under `public/vendor/maplibre/`, so the map
+   survives even a plain `next build`). Install Command: `npm install`.
+3. Environment variables, for **Production** (and **Preview** if you want the
+   fence there too):
+
+   | Name | Value |
+   |---|---|
+   | `NUSAWATCH_FENCE` | `1` |
+   | `NEXT_PUBLIC_SITE_URL` | `https://<your-domain>` (used for canonical/OG URLs) |
+
+   Do not mark `NUSAWATCH_FENCE` as *Sensitive*: middleware runs on the Edge
+   runtime, which inlines `process.env` at build time. Set it before the first
+   deploy, and redeploy after any change to it.
+4. Deploy, then run the checklist above against the deployment URL.
+
+Notes:
+
+- Without `NUSAWATCH_FENCE=1` the whole upstream OSIRIS application is public.
+  That is the one environment variable that matters.
+- `NEXT_PUBLIC_SITE_URL` only changes metadata (canonical, `og:url`). The
+  sitemap and robots responses use the request origin, so they follow whatever
+  domain you attach.
+- No secrets are required by the NusaWatch surface; both sources are
+  unauthenticated.
+- Function region defaults to the project's region (usually `iad1`). For
+  Indonesian users, `sin1` (Singapore) roughly halves the time to BMKG.
+- The middleware matcher deliberately skips static file extensions, so upstream
+  files under `public/` (icons, `data/*.json`) are still reachable under the
+  fence. They are static reference data, not application routes; the dashboard,
+  scanner and OSINT endpoints are all `404`.
+
 ## Screenshots
 
 Captured with Chrome 155 against the production standalone build with
