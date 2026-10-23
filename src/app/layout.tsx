@@ -11,7 +11,7 @@ const SITE_TITLE = "NusaWatch — Pantauan Gempa & Intelijen Indonesia | Globe 3
 const SITE_DESCRIPTION = "Portal intelijen terbuka dengan fokus Indonesia dan data global. Pantau gempa BMKG & USGS, penerbangan, satelit, CCTV, kebakaran, cuaca, dan ancaman siber di globe 3D — plus alat OSINT dari browser. Dibangun dari OSIRIS (MIT).";
 
 export const viewport: Viewport = {
-  themeColor: "#D4AF37",
+  themeColor: "#3DDCBF",
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
@@ -128,7 +128,7 @@ export const metadata: Metadata = {
     "apple-mobile-web-app-status-bar-style": "black-translucent",
     "apple-mobile-web-app-title": "NusaWatch",
     "mobile-web-app-capable": "yes",
-    "msapplication-TileColor": "#06060C",
+    "msapplication-TileColor": "#070C0F",
     "msapplication-config": "none",
     /* MIT attribution to the upstream project this deployment is built from. */
     "attribution": "Built on OSIRIS (MIT) — https://github.com/simplifaisoul/osiris",

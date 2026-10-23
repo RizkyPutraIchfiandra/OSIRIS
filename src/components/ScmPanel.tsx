@@ -80,7 +80,7 @@ export default function ScmPanel({ data }: ScmPanelProps) {
                             <span className="text-[11px] font-mono font-bold text-[#FF1744]">{s.name}</span>
                             <span className="text-[9px] font-mono text-[#FF1744]/80">{s.city}</span>
                           </div>
-                          <div className="text-[9px] font-mono text-[#E8E6E0]">{threats.join(' • ')}</div>
+                          <div className="text-[9px] font-mono text-[#E3F0EE]">{threats.join(' • ')}</div>
                         </div>
                       );
                     })}

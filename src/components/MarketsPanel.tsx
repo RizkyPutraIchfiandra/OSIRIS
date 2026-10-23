@@ -609,7 +609,7 @@ export default function MarketsPanel({ data, spaceWeather }: MarketsPanelProps) 
   );
 
   // AiOverview builds tints by appending alpha to the colour, so it needs a hex.
-  const ai = <AiOverview mode="markets" payload={{ markets, spaceWeather }} accent="#D4AF37" />;
+  const ai = <AiOverview mode="markets" payload={{ markets, spaceWeather }} accent="#3DDCBF" />;
 
   const toggleMax = () => { setMaximized(m => !m); setExpanded(true); };
 

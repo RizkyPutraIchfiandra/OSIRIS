@@ -136,9 +136,9 @@ export default function GlobalStatusBar({ revealed = true }: { revealed?: boolea
       initial={{ opacity: 0, y: 10 }}
       animate={revealed ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
       transition={{ delay: 0.5, duration: 0.6 }}
-      className="hidden md:block absolute bottom-0 left-0 right-0 z-[210] pointer-events-none"
+      className="hidden md:block absolute bottom-3 left-3 right-3 z-[210] pointer-events-none"
     >
-      <div className="h-[28px] overflow-hidden bg-[#0a0a0f]/95 border-t border-white/[0.06] flex items-center text-[10px] font-mono tracking-wider backdrop-blur-xl relative">
+      <div className="h-[34px] overflow-hidden rounded-2xl border border-white/10 bg-[var(--bg-panel)]/95 flex items-center text-[10px] font-mono tracking-wider backdrop-blur-xl relative shadow-[0_14px_40px_rgba(0,0,0,0.5)]">
         {/* Animated scan line */}
         <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[var(--cyan-primary)]/30 to-transparent" style={{ animation: 'hud-scanline 4s linear infinite' }} />
         
@@ -221,7 +221,7 @@ export default function GlobalStatusBar({ revealed = true }: { revealed?: boolea
 
       {/* Earthquake hover tooltip */}
       {hoveredQuake && (
-        <div className="absolute bottom-[34px] left-1/2 -translate-x-1/2 z-[300] pointer-events-none">
+        <div className="absolute bottom-[40px] left-1/2 -translate-x-1/2 z-[300] pointer-events-none">
           <div className="bg-black/90 backdrop-blur-xl border border-white/[0.08] rounded-lg px-4 py-3 text-[11px] font-mono whitespace-nowrap shadow-2xl">
             <div className="flex items-center gap-2 mb-2">
               <span className="text-[11px]">🔴</span>

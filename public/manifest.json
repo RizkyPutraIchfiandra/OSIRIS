@@ -5,8 +5,8 @@
   "lang": "id",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#06060C",
-  "theme_color": "#D4AF37",
+  "background_color": "#070C0F",
+  "theme_color": "#3DDCBF",
   "orientation": "landscape-primary",
   "categories": ["news", "weather", "utilities", "security"],
   "icons": [

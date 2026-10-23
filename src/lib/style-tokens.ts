@@ -61,6 +61,7 @@ export interface StyleSettings {
 }
 
 export const FONT_UI = [
+  { label: 'MANROPE', value: "'Manrope', -apple-system, sans-serif" },
   { label: 'INTER', value: "'Inter', -apple-system, sans-serif" },
   { label: 'MONO', value: "'JetBrains Mono', monospace" },
   { label: 'SYSTEM', value: 'system-ui, -apple-system, sans-serif' },
@@ -68,6 +69,7 @@ export const FONT_UI = [
 ];
 
 export const FONT_MONO = [
+  { label: 'IBM PLEX', value: "'IBM Plex Mono', 'Courier New', monospace" },
   { label: 'JETBRAINS', value: "'JetBrains Mono', 'Courier New', monospace" },
   { label: 'COURIER', value: "'Courier New', Courier, monospace" },
   { label: 'CONSOLAS', value: "Consolas, 'SF Mono', Menlo, monospace" },
@@ -76,22 +78,22 @@ export const FONT_MONO = [
 
 /** Neutral baseline: also the shape used to enumerate every var we own. */
 export const DEFAULTS: StyleSettings = {
-  accent: '#d4af37',
-  accent2: '#00e5ff',
-  alertRed: '#ff3d3d',
-  alertOrange: '#ff9500',
-  alertGreen: '#00e676',
-  alertBlue: '#448aff',
-  bg: '#04040a',
-  bgPrimary: '#06060c',
-  bgSecondary: '#0c0e1a',
-  bgTertiary: '#121628',
-  panelAlpha: 0.88,
+  accent: '#3ddcbf',
+  accent2: '#7fb6ff',
+  alertRed: '#ff6b6b',
+  alertOrange: '#f2a93b',
+  alertGreen: '#45e3a0',
+  alertBlue: '#6fa8ff',
+  bg: '#040b0f',
+  bgPrimary: '#061116',
+  bgSecondary: '#0a1b22',
+  bgTertiary: '#102831',
+  panelAlpha: 0.86,
   borderAlpha: 0.15,
-  textPrimary: '#e8e6e0',
-  textSecondary: '#9b978e',
-  textMuted: '#5c5a54',
-  textHeading: '#f5f0e0',
+  textPrimary: '#e3f0ee',
+  textSecondary: '#9bb3b1',
+  textMuted: '#5e7a78',
+  textHeading: '#f1fbf9',
   fontUi: FONT_UI[0].value,
   fontMono: FONT_MONO[0].value,
   glow: 0.3,

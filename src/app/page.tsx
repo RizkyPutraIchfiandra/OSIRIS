@@ -132,7 +132,7 @@ function ViewSegment({ active, onClick, title, icon: Icon, label, layoutId }: {
       title={title}
       aria-label={title}
       aria-pressed={active}
-      className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[10px] font-mono font-medium tracking-[0.18em] transition-colors duration-200 ${
+      className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-mono font-medium tracking-[0.18em] transition-colors duration-200 ${
         active ? 'text-[var(--gold-light)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
       }`}
     >
@@ -140,7 +140,7 @@ function ViewSegment({ active, onClick, title, icon: Icon, label, layoutId }: {
         <motion.span
           layoutId={layoutId}
           transition={{ type: 'spring', stiffness: 420, damping: 34 }}
-          className="absolute inset-0 rounded-md border border-[var(--border-active)] bg-[var(--gold-primary)]/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_0_14px_var(--gold-glow)]"
+          className="absolute inset-0 rounded-full border border-[var(--border-active)] bg-[var(--gold-primary)]/12 shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_0_14px_var(--gold-glow)]"
         />
       )}
       <Icon className="w-3.5 h-3.5 relative z-10" />
@@ -160,11 +160,11 @@ const newsTransform = (d: { news?: unknown[]; sources?: unknown[]; timestamp?: s
 });
 
 /* One version label for the splash and the header, which used to disagree. */
-const APP_VERSION = 'V5.0';
+const APP_VERSION = 'NW 1.0';
 
 /* The splash reports what has actually happened. The last stage waits for
    the map's first finished frame instead of a fixed timer. */
-const SPLASH_STAGES = ['ESTABLISHING SECURE CONNECTION...', 'INITIALIZING FEEDS...', 'CALIBRATING SENSORS...', 'SYSTEM READY'];
+const SPLASH_STAGES = ['MENGHUBUNGKAN SUMBER DATA...', 'MEMUAT LAPISAN PETA...', 'MENYELARASKAN SENSOR...', 'SIAP'];
 const SPLASH_PROGRESS = ['25%', '50%', '78%', '100%'];
 
 /* The HUD enters as one sequence when the splash lifts. Each piece used to
@@ -1377,11 +1377,11 @@ export default function Dashboard() {
             exit={{ opacity: 0, scale: 1.04 }}
             transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
             className="absolute inset-0 z-[999] flex flex-col items-center justify-center overflow-hidden"
-            style={{ background: 'radial-gradient(ellipse at center, #0a0a14 0%, var(--bg-void) 70%)' }}
+            style={{ background: 'radial-gradient(ellipse at center, #081419 0%, var(--bg-void) 70%)' }}
           >
             {/* ── Scanline CRT overlay ── */}
             <div className="absolute inset-0 pointer-events-none z-[1]" style={{
-              backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(212,175,55,0.015) 2px, rgba(212,175,55,0.015) 4px)',
+              backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(61,220,191,0.015) 2px, rgba(61,220,191,0.015) 4px)',
               animation: 'splashScanDrift 8s linear infinite',
             }} />
 
@@ -1405,10 +1405,10 @@ export default function Dashboard() {
                 animate={{ opacity: 1, scale: 1, rotate: 360 }}
                 transition={{ opacity: { duration: 0.6 }, scale: { duration: 0.8, ease: 'easeOut' }, rotate: { duration: 20, repeat: Infinity, ease: 'linear' } }}
                 className="absolute inset-0 rounded-full"
-                style={{ border: '1px solid rgba(212,175,55,0.2)' }}
+                style={{ border: '1px solid rgba(61,220,191,0.2)' }}
               >
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full" style={{ background: 'var(--gold-primary)', boxShadow: '0 0 12px var(--gold-primary), 0 0 24px rgba(212,175,55,0.3)' }} />
-                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-1 h-1 rounded-full" style={{ background: 'rgba(212,175,55,0.5)', boxShadow: '0 0 6px rgba(212,175,55,0.3)' }} />
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full" style={{ background: 'var(--gold-primary)', boxShadow: '0 0 12px var(--gold-primary), 0 0 24px rgba(61,220,191,0.3)' }} />
+                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-1 h-1 rounded-full" style={{ background: 'rgba(61,220,191,0.5)', boxShadow: '0 0 6px rgba(61,220,191,0.3)' }} />
               </motion.div>
 
               {/* Middle ring — faster counter-clockwise */}
@@ -1417,10 +1417,10 @@ export default function Dashboard() {
                 animate={{ opacity: 1, scale: 1, rotate: -360 }}
                 transition={{ opacity: { duration: 0.6, delay: 0.15 }, scale: { duration: 0.8, delay: 0.15, ease: 'easeOut' }, rotate: { duration: 12, repeat: Infinity, ease: 'linear' } }}
                 className="absolute rounded-full"
-                style={{ inset: '18px', border: '1px solid rgba(0,229,255,0.15)' }}
+                style={{ inset: '18px', border: '1px solid rgba(127,182,255,0.15)' }}
               >
-                <div className="absolute top-1/2 right-0 translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full" style={{ background: 'var(--cyan-primary)', boxShadow: '0 0 10px var(--cyan-primary), 0 0 20px rgba(0,229,255,0.2)' }} />
-                <div className="absolute bottom-0 left-1/4 translate-y-1/2 w-1 h-1 rounded-full" style={{ background: 'rgba(0,229,255,0.4)' }} />
+                <div className="absolute top-1/2 right-0 translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full" style={{ background: 'var(--cyan-primary)', boxShadow: '0 0 10px var(--cyan-primary), 0 0 20px rgba(127,182,255,0.2)' }} />
+                <div className="absolute bottom-0 left-1/4 translate-y-1/2 w-1 h-1 rounded-full" style={{ background: 'rgba(127,182,255,0.4)' }} />
               </motion.div>
 
               {/* Inner ring — fastest clockwise */}
@@ -1429,7 +1429,7 @@ export default function Dashboard() {
                 animate={{ opacity: 1, scale: 1, rotate: 360 }}
                 transition={{ opacity: { duration: 0.6, delay: 0.3 }, scale: { duration: 0.8, delay: 0.3, ease: 'easeOut' }, rotate: { duration: 7, repeat: Infinity, ease: 'linear' } }}
                 className="absolute rounded-full"
-                style={{ inset: '40px', border: '1px solid rgba(212,175,55,0.25)' }}
+                style={{ inset: '40px', border: '1px solid rgba(61,220,191,0.25)' }}
               >
                 <div className="absolute top-0 left-1/4 -translate-y-1/2 w-1.5 h-1.5 rounded-full" style={{ background: 'var(--gold-primary)', boxShadow: '0 0 8px var(--gold-primary)' }} />
               </motion.div>
@@ -1440,17 +1440,17 @@ export default function Dashboard() {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.4, duration: 0.6, ease: [0.34, 1.56, 0.64, 1] }}
                 className="relative w-12 h-12 rounded-full flex items-center justify-center"
-                style={{ border: '2px solid var(--gold-primary)', boxShadow: '0 0 20px rgba(212,175,55,0.15), inset 0 0 20px rgba(212,175,55,0.05)' }}
+                style={{ border: '2px solid var(--gold-primary)', boxShadow: '0 0 20px rgba(61,220,191,0.15), inset 0 0 20px rgba(61,220,191,0.05)' }}
               >
                 <motion.div
                   animate={{ opacity: [0.3, 0.8, 0.3] }}
                   transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
                   className="w-5 h-5 rounded-full"
-                  style={{ background: 'radial-gradient(circle, rgba(212,175,55,0.4) 0%, rgba(212,175,55,0.05) 70%)' }}
+                  style={{ background: 'radial-gradient(circle, rgba(61,220,191,0.4) 0%, rgba(61,220,191,0.05) 70%)' }}
                 />
                 {/* Crosshair lines */}
-                <div className="absolute w-[1px] h-full" style={{ background: 'linear-gradient(to bottom, transparent, rgba(212,175,55,0.3), transparent)' }} />
-                <div className="absolute w-full h-[1px]" style={{ background: 'linear-gradient(to right, transparent, rgba(212,175,55,0.3), transparent)' }} />
+                <div className="absolute w-[1px] h-full" style={{ background: 'linear-gradient(to bottom, transparent, rgba(61,220,191,0.3), transparent)' }} />
+                <div className="absolute w-full h-[1px]" style={{ background: 'linear-gradient(to right, transparent, rgba(61,220,191,0.3), transparent)' }} />
               </motion.div>
 
               {/* Faint pulsing radar sweep */}
@@ -1459,7 +1459,7 @@ export default function Dashboard() {
                 animate={{ opacity: [0, 0.15, 0], rotate: [0, 360] }}
                 transition={{ opacity: { duration: 3, repeat: Infinity }, rotate: { duration: 3, repeat: Infinity, ease: 'linear' }, delay: 0.6 }}
                 className="absolute inset-[10px] rounded-full"
-                style={{ background: 'conic-gradient(from 0deg, transparent 0deg, rgba(212,175,55,0.15) 40deg, transparent 80deg)' }}
+                style={{ background: 'conic-gradient(from 0deg, transparent 0deg, rgba(61,220,191,0.15) 40deg, transparent 80deg)' }}
               />
             </div>
 
@@ -1471,8 +1471,8 @@ export default function Dashboard() {
                   initial={{ opacity: 0, y: 20, filter: 'blur(8px)' }}
                   animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
                   transition={{ delay: 0.5 + i * 0.06, duration: 0.5, ease: 'easeOut' }}
-                  className="text-2xl md:text-5xl font-bold tracking-[0.18em] md:tracking-[0.4em] font-mono"
-                  style={{ color: 'var(--text-heading)', textShadow: '0 0 30px rgba(212,175,55,0.2)' }}
+                  className="text-2xl md:text-5xl font-extrabold tracking-[0.16em] md:tracking-[0.3em] font-sans"
+                  style={{ color: 'var(--text-heading)', textShadow: '0 0 30px rgba(61,220,191,0.2)' }}
                 >
                   {letter}
                 </motion.span>
@@ -1496,13 +1496,13 @@ export default function Dashboard() {
             {/* ── Multi-stage progress bar ── */}
             <div className="w-64 md:w-80 z-[2]">
               {/* Thin progress track */}
-              <div className="relative w-full h-[2px] rounded-full overflow-hidden" style={{ background: 'rgba(212,175,55,0.1)' }}>
+              <div className="relative w-full h-[2px] rounded-full overflow-hidden" style={{ background: 'rgba(61,220,191,0.1)' }}>
                 <motion.div
                   initial={{ width: '0%' }}
                   animate={{ width: SPLASH_PROGRESS[splashStage] }}
                   transition={{ duration: 0.55, delay: splashStage === 0 ? 0.5 : 0, ease: 'easeInOut' }}
                   className="absolute inset-y-0 left-0 rounded-full"
-                  style={{ background: 'linear-gradient(90deg, var(--gold-primary), var(--cyan-primary), var(--gold-primary))', boxShadow: '0 0 12px rgba(212,175,55,0.4)' }}
+                  style={{ background: 'linear-gradient(90deg, var(--gold-primary), var(--cyan-primary), var(--gold-primary))', boxShadow: '0 0 12px rgba(61,220,191,0.4)' }}
                 />
               </div>
 
@@ -1527,7 +1527,7 @@ export default function Dashboard() {
             {/* ── Decorative grid lines ── */}
             <div className="absolute inset-0 pointer-events-none z-[0]" style={{ opacity: 0.03 }}>
               <div className="absolute inset-0" style={{
-                backgroundImage: 'linear-gradient(rgba(212,175,55,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(212,175,55,0.5) 1px, transparent 1px)',
+                backgroundImage: 'linear-gradient(rgba(61,220,191,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(61,220,191,0.5) 1px, transparent 1px)',
                 backgroundSize: '60px 60px',
               }} />
             </div>
@@ -1730,7 +1730,7 @@ export default function Dashboard() {
         style={{ left: isMobile ? '12px' : '120px' }}
       >
         {/* Unified Control Strip */}
-        <div className="flex items-center gap-[3px] p-[3px] pointer-events-auto rounded-xl border border-[var(--border-primary)] bg-[var(--bg-panel)] backdrop-blur-2xl shadow-[0_8px_32px_rgba(0,0,0,0.55)]">
+        <div className="flex items-center gap-[3px] p-[3px] pointer-events-auto rounded-full border border-[var(--border-primary)] bg-[var(--bg-panel)] backdrop-blur-2xl shadow-[0_8px_32px_rgba(0,0,0,0.55)]">
           <ViewSegment layoutId="view-projection" active={mapProjection === 'globe'} onClick={() => setMapProjection('globe')} title="3D Globe" icon={Globe} label="3D" />
           <ViewSegment layoutId="view-projection" active={mapProjection === 'mercator'} onClick={selectFlatMap} title="2D Map" icon={MapPinned} label="2D" />
           <div className="w-px h-5 mx-1 bg-[var(--border-secondary)]" />
@@ -1747,53 +1747,58 @@ export default function Dashboard() {
         )}
       </motion.div>
 
-      {/* ── HEADER ── */}
-      <motion.div data-hud initial={{ opacity: 0, y: -20 }} animate={revealed ? { opacity: 1, y: 0 } : { opacity: 0, y: -20 }} transition={hudIn(0.15)} className={`absolute top-4 z-[200] pointer-events-none flex flex-col`} style={{ left: isMobile ? '24px' : '64px', right: '24px' }}>
-        <div className="flex items-center gap-3 w-fit">
-          <svg viewBox="0 0 48 48" role="img" aria-label="NusaWatch" className="w-8 h-8 md:w-10 md:h-10 shrink-0 transition-colors duration-500 text-[#D4AF37] drop-shadow-[0_0_8px_rgba(255,215,0,0.5)]" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="24" cy="24" r="21" opacity="0.55" />
-            <circle cx="24" cy="24" r="15.5" opacity="0.25" />
-            <path d="M7 24h7.5l3.5-8.5 5.5 17 4-12 2.8 6.5H41" />
-          </svg>
-          {/* The wordmark needs ~215 px; on a phone the status pills sit where
+      {/* ── HEADER — a floating instrument capsule, not a bare HUD cluster ── */}
+      <motion.div data-hud initial={{ opacity: 0, y: -20 }} animate={revealed ? { opacity: 1, y: 0 } : { opacity: 0, y: -20 }} transition={hudIn(0.15)} className="absolute top-3 md:top-4 z-[200] pointer-events-none flex flex-col gap-2" style={{ left: isMobile ? '12px' : '64px', right: '24px' }}>
+        <div className="pointer-events-auto flex w-fit items-center gap-3 rounded-2xl border border-white/10 bg-[var(--bg-panel)]/85 px-2.5 py-2 shadow-[0_14px_44px_rgba(0,0,0,0.45)] backdrop-blur-2xl">
+          <span className="flex h-9 w-9 md:h-10 md:w-10 shrink-0 items-center justify-center rounded-xl border border-[var(--gold-primary)]/25 bg-[var(--gold-primary)]/10">
+            <svg viewBox="0 0 48 48" role="img" aria-label="NusaWatch" className="h-6 w-6 md:h-7 md:w-7 text-[var(--gold-primary)]" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="24" cy="24" r="21" opacity="0.55" />
+              <circle cx="24" cy="24" r="15.5" opacity="0.25" />
+              <path d="M7 24h7.5l3.5-8.5 5.5 17 4-12 2.8 6.5H41" />
+            </svg>
+          </span>
+          {/* The wordmark needs ~200 px; on a phone the status pills sit where
               it would go. The mark alone carries the brand there, and the
               splash still spells NUSAWATCH out in full. */}
-          <div className="hidden md:flex flex-col items-start gap-0.5">
-            <h1 className="text-lg md:text-xl font-bold tracking-[0.4em] text-[#D4AF37] font-mono">NUSAWATCH</h1>
-            <span className="text-[9px] md:text-[10px] font-mono tracking-[0.2em] opacity-80 uppercase text-[#D4AF37]">GEMPA &amp; INTELIJEN INDONESIA</span>
+          <div className="hidden md:flex flex-col items-start">
+            <h1 className="font-sans text-[15px] font-extrabold leading-none tracking-[0.2em] text-[var(--text-heading)]">NUSAWATCH</h1>
+            <span className="mt-1 font-mono text-[8.5px] uppercase tracking-[0.18em] text-[var(--gold-primary)]/85">Gempa &amp; intelijen Indonesia</span>
           </div>
         </div>
-        <div className="flex items-center gap-3 mt-1.5 pl-[44px] min-w-0 pr-4">
-          <span className="text-[9px] md:text-[9px] text-[var(--text-muted)] font-mono tracking-[0.2em] md:tracking-[0.3em] uppercase opacity-40 truncate">
-            REAL-TIME INDONESIA &amp; GLOBAL <span className="hidden md:inline">· GEMPA · PENERBANGAN · MARITIM · SATELIT · CCTV · CUACA · ANCAMAN SIBER</span>
+        <div className="hidden md:flex items-center gap-3 pl-2 min-w-0 pr-4">
+          <span className="text-[9px] text-[var(--text-muted)] font-mono tracking-[0.22em] uppercase opacity-60 truncate">
+            REAL-TIME INDONESIA &amp; GLOBAL <span className="hidden lg:inline">· GEMPA · PENERBANGAN · MARITIM · SATELIT · CCTV · CUACA · ANCAMAN SIBER</span>
           </span>
         </div>
       </motion.div>
 
 
       {/* ── TOP-RIGHT STATUS (desktop) ── */}
-      <motion.div data-hud initial={{ opacity: 0 }} animate={{ opacity: revealed ? 1 : 0 }} transition={hudIn(0.35)} className="status-bar-desktop absolute top-4 right-6 z-[200] pointer-events-none flex items-center gap-3 text-[10px] font-mono tracking-widest text-[var(--text-muted)]">
+      <motion.div data-hud initial={{ opacity: 0 }} animate={{ opacity: revealed ? 1 : 0 }} transition={hudIn(0.35)} className="status-bar-desktop absolute top-4 right-6 z-[200] pointer-events-none flex items-center gap-2 text-[10px] font-mono tracking-widest text-[var(--text-muted)]">
 
-        <span className="hidden lg:inline-flex items-center gap-1.5">
-          <ZuluClock />
-        </span>
+        {/* Metrics share one floating capsule; tools keep their own shapes. */}
+        <div className="pointer-events-auto flex items-center gap-3 rounded-full border border-white/10 bg-[var(--bg-panel)]/85 px-3.5 py-1.5 shadow-[0_10px_30px_rgba(0,0,0,0.35)] backdrop-blur-xl">
+          <span className="hidden lg:inline-flex items-center gap-1.5">
+            <ZuluClock />
+          </span>
 
-        <span className="flex items-center gap-1" title="Backend connection status">STATUS: <span className={backendStatus === 'connected' ? 'text-[var(--alert-green)]' : 'text-[var(--alert-red)]'}>{backendStatus === 'connected' ? 'LIVE' : backendStatus.toUpperCase()}</span></span>
+          <span className="flex items-center gap-1" title="Backend connection status">STATUS: <span className={backendStatus === 'connected' ? 'text-[var(--alert-green)]' : 'text-[var(--alert-red)]'}>{backendStatus === 'connected' ? 'LIVE' : backendStatus.toUpperCase()}</span></span>
 
-        <span className="hidden lg:inline-flex items-center gap-1" title="Number of active data layers">
-          <span className="text-[var(--cyan-primary)] font-bold">{Object.values(activeLayers).filter(Boolean).length}</span>
-          <span className="opacity-60">LAYERS</span>
-        </span>
+          <span className="hidden lg:inline-flex items-center gap-1" title="Number of active data layers">
+            <span className="text-[var(--gold-primary)] font-bold">{Object.values(activeLayers).filter(Boolean).length}</span>
+            <span className="opacity-60">LAYERS</span>
+          </span>
 
-        <span className="hidden lg:inline-flex items-center gap-1" title="Tracked entities on map">
-          <ActiveEntityCount data={data} />
-          <span className="opacity-60">ENTITIES</span>
-        </span>
+          <span className="hidden lg:inline-flex items-center gap-1" title="Tracked entities on map">
+            <ActiveEntityCount data={data} />
+            <span className="opacity-60">ENTITIES</span>
+          </span>
 
-        {spaceWeather && <span className="hidden lg:inline" title={spaceWeather.kp_index == null ? 'Geomagnetic Storm Index — no reading from NOAA' : `Geomagnetic Storm Index — Kp${spaceWeather.kp_index}`}>SOLAR: <span style={{ color: spaceWeather.storm_color, fontWeight: 700 }}>{spaceWeather.kp_index == null ? 'N/A' : `Kp${spaceWeather.kp_index}`}</span></span>}
+          {spaceWeather && <span className="hidden lg:inline" title={spaceWeather.kp_index == null ? 'Geomagnetic Storm Index — no reading from NOAA' : `Geomagnetic Storm Index — Kp${spaceWeather.kp_index}`}>SOLAR: <span style={{ color: spaceWeather.storm_color, fontWeight: 700 }}>{spaceWeather.kp_index == null ? 'N/A' : `Kp${spaceWeather.kp_index}`}</span></span>}
 
-        <span className="text-[11px] font-bold tracking-[0.2em] text-[var(--text-muted)] opacity-50">{APP_VERSION}</span>
-        
+          <span className="text-[10px] font-bold tracking-[0.2em] text-[var(--text-muted)] opacity-60">{APP_VERSION}</span>
+        </div>
+
         <TokenPanel />
 
         {/* The Indonesia-focused surface lives at /watch; this deployment
@@ -1838,7 +1843,7 @@ export default function Dashboard() {
 
 
       {/* ── RIGHT TOOL STRIP (desktop only — mobile uses bottom nav) ── */}
-      {!isMobile && <motion.div data-hud initial={{ opacity: 0, x: 12 }} animate={revealed ? { opacity: 1, x: 0 } : { opacity: 0, x: 12 }} transition={hudIn(0.3)} className="absolute right-2 top-1/2 -translate-y-1/2 flex flex-col items-center gap-2 z-[250] pointer-events-auto bg-black/40 backdrop-blur-sm p-1 rounded-full border border-white/5">
+      {!isMobile && <motion.div data-hud initial={{ opacity: 0, x: 12 }} animate={revealed ? { opacity: 1, x: 0 } : { opacity: 0, x: 12 }} transition={hudIn(0.3)} className="absolute right-2 top-1/2 -translate-y-1/2 flex flex-col items-center gap-2 z-[250] pointer-events-auto bg-[var(--bg-panel)]/85 backdrop-blur-xl p-1 rounded-full border border-white/10 shadow-[0_18px_50px_rgba(0,0,0,0.45)]">
         <div className="relative group">
           <button onClick={() => { setShowIntel(!showIntel); setShowOi(false); setShowMarkets(false); setShowAlerts(false); }} className={`relative w-8 h-8 rounded-full flex items-center justify-center transition-all focus:outline-none focus-visible:ring-1 focus-visible:ring-white/50 border duration-200 ${showIntel ? 'bg-[var(--gold-primary)]/20 border-[var(--gold-primary)]/70 shadow-[0_0_18px_rgba(var(--gold-rgb),0.35)]' : 'bg-[var(--gold-primary)]/[0.07] border-[var(--gold-primary)]/35 hover:bg-[var(--gold-primary)]/15 hover:border-[var(--gold-primary)]/60 hover:shadow-[0_0_14px_rgba(var(--gold-rgb),0.25)]'}`} title="OSINT Recon — IP lookup, network sweep, geolocation" aria-label="OSINT Recon" aria-expanded={showIntel}>
             <Radar className={`w-4 h-4 ${showIntel ? 'text-[var(--gold-light)]' : 'text-[var(--gold-primary)]'}`} />
@@ -2015,7 +2020,7 @@ export default function Dashboard() {
               <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="absolute right-12 top-1/2 -translate-y-1/2 w-[340px]">
                 <div className="glass-panel p-3 max-h-[70vh] overflow-y-auto styled-scrollbar">
                   <ArcGISPanel
-                    onImportLayer={(layer) => setArcgisLayers(prev => [...prev.filter(l => l.id !== layer.id), { ...layer, color: layer.color || '#D4AF37', visible: true, opacity: layer.opacity ?? 0.8 }])}
+                    onImportLayer={(layer) => setArcgisLayers(prev => [...prev.filter(l => l.id !== layer.id), { ...layer, color: layer.color || '#3DDCBF', visible: true, opacity: layer.opacity ?? 0.8 }])}
                     onRemoveLayer={(id) => setArcgisLayers(prev => prev.filter(l => l.id !== id))}
                     onUpdateLayer={(id, updates) => setArcgisLayers(prev => prev.map(l => l.id === id ? { ...l, ...updates } : l))}
                     importedLayers={arcgisLayers}

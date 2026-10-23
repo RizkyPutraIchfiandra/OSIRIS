@@ -98,7 +98,7 @@ export function diffSweep(
             id: `w${++seq}`, kind: 'exit', aoiId,
             layer,
             layerLabel: group?.label ?? layer,
-            color: group?.color ?? '#9B978E',
+            color: group?.color ?? '#9BB3B1',
             label: k.slice(layer.length + 1),
             at: now,
           });

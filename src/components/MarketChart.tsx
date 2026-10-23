@@ -84,7 +84,7 @@ export default function MarketChart({ symbol, name, onClose, large = false }: Ma
       autoSize: true,
       layout: {
         background: { color: 'transparent' },
-        textColor: themeColor('--text-secondary', '#9B978E'),
+        textColor: themeColor('--text-secondary', '#9BB3B1'),
         fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
         fontSize: 9,
       },
@@ -92,8 +92,8 @@ export default function MarketChart({ symbol, name, onClose, large = false }: Ma
       rightPriceScale: { borderColor: AXIS, scaleMargins: { top: 0.1, bottom: 0.26 } },
       timeScale: { borderColor: AXIS, secondsVisible: false },
       crosshair: {
-        vertLine: { color: `rgba(${themeColor('--gold-rgb', '212, 175, 55')}, 0.4)`, labelBackgroundColor: themeColor('--gold-primary', '#D4AF37') },
-        horzLine: { color: `rgba(${themeColor('--gold-rgb', '212, 175, 55')}, 0.4)`, labelBackgroundColor: themeColor('--gold-primary', '#D4AF37') },
+        vertLine: { color: `rgba(${themeColor('--gold-rgb', '61, 220, 191')}, 0.4)`, labelBackgroundColor: themeColor('--gold-primary', '#3DDCBF') },
+        horzLine: { color: `rgba(${themeColor('--gold-rgb', '61, 220, 191')}, 0.4)`, labelBackgroundColor: themeColor('--gold-primary', '#3DDCBF') },
       },
       handleScale: { axisPressedMouseMove: false },
     });

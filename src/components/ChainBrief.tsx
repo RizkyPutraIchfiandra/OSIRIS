@@ -189,7 +189,7 @@ function ChainBriefInner() {
             <div className="text-[10px] font-mono text-[var(--text-muted)] py-1">None published in window.</div>
           )}
           {brief.cves.slice(0, 10).map((c: any, i: number) => {
-            const col = SEV_COLOR[String(c.severity || '').toLowerCase()] || '#9B978E';
+            const col = SEV_COLOR[String(c.severity || '').toLowerCase()] || '#9BB3B1';
             return (
               <div key={i} className="py-1.5 border-b border-[var(--border-secondary)]/20 last:border-0">
                 <div className="flex items-center gap-2">

@@ -369,11 +369,11 @@ function LayerPanel({ data, activeLayers, setActiveLayers, isMobile, theme = 'co
       initial={{ x: -60, opacity: 0 }}
       animate={revealed ? { x: 0, opacity: 1 } : { x: -60, opacity: 0 }}
       transition={{ type: 'spring', damping: 30, stiffness: 200, delay: 0.25 }}
-      className="absolute top-0 left-0 h-full w-[48px] flex flex-col items-center pt-24 pb-6 z-50 pointer-events-auto"
+      className="absolute top-[84px] bottom-[56px] left-2 w-[52px] flex flex-col items-center rounded-3xl border border-white/10 py-2 z-50 pointer-events-auto shadow-[0_18px_50px_rgba(0,0,0,0.45)]"
       style={{
-        background: 'rgba(0,0,0,0.15)',
-        backdropFilter: 'blur(24px) saturate(1.2)',
-        WebkitBackdropFilter: 'blur(24px) saturate(1.2)',
+        background: 'rgba(7,20,25,0.78)',
+        backdropFilter: 'blur(26px) saturate(1.15)',
+        WebkitBackdropFilter: 'blur(26px) saturate(1.15)',
       }}
     >
       <div className="flex-1 flex flex-col items-center gap-1">
@@ -417,11 +417,11 @@ function LayerPanel({ data, activeLayers, setActiveLayers, isMobile, theme = 'co
                     width: 16,
                     height: 16,
                     color: groupActive
-                      ? 'rgba(255,255,255,0.75)'
+                      ? 'var(--gold-primary)'
                       : isOpen
-                        ? 'rgba(255,255,255,0.45)'
-                        : 'rgba(255,255,255,0.22)',
-                    filter: groupActive ? 'drop-shadow(0 0 4px rgba(255,255,255,0.3))' : 'none',
+                        ? 'rgba(255,255,255,0.55)'
+                        : 'rgba(255,255,255,0.28)',
+                    filter: groupActive ? 'drop-shadow(0 0 5px var(--gold-glow))' : 'none',
                   }}
                 />
 
@@ -431,9 +431,9 @@ function LayerPanel({ data, activeLayers, setActiveLayers, isMobile, theme = 'co
                   <span
                     className="absolute top-1 right-1 min-w-[13px] h-[13px] px-[3px] rounded-full flex items-center justify-center text-[9px] font-mono tabular-nums leading-none"
                     style={{
-                      background: 'rgba(0,229,255,0.9)',
-                      color: '#04040A',
-                      boxShadow: '0 0 6px rgba(0,229,255,0.5)',
+                      background: 'rgba(61,220,191,0.95)',
+                      color: '#04120F',
+                      boxShadow: '0 0 6px rgba(61,220,191,0.5)',
                     }}
                   >
                     {activeCount}
@@ -452,15 +452,15 @@ function LayerPanel({ data, activeLayers, setActiveLayers, isMobile, theme = 'co
                     transition={{ duration: 0.18, ease: 'easeOut' }}
                     className={`absolute left-[52px] ${index === 0 ? 'top-0' : 'top-1/2 -translate-y-1/2'} min-w-[220px] rounded-xl p-3 z-[100] pointer-events-auto`}
                     style={{
-                      background: 'rgba(0,0,0,0.6)',
-                      backdropFilter: 'blur(40px) saturate(1.5)',
-                      WebkitBackdropFilter: 'blur(40px) saturate(1.5)',
-                      border: '1px solid rgba(255,255,255,0.06)',
-                      boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+                      background: 'rgba(7,20,25,0.94)',
+                      backdropFilter: 'blur(26px) saturate(1.2)',
+                      WebkitBackdropFilter: 'blur(26px) saturate(1.2)',
+                      border: '1px solid rgba(201,255,245,0.12)',
+                      boxShadow: '0 18px 50px rgba(0,0,0,0.55)',
                     }}
                   >
-                    <div className="flex items-center gap-2 mb-2.5 pb-1.5 border-b border-white/[0.04]">
-                      <span className="text-[10px] font-mono tracking-[0.2em] uppercase text-white/35 flex-1">
+                    <div className="flex items-center gap-2 mb-2.5 pb-1.5 border-b border-white/[0.06]">
+                      <span className="text-[10px] font-mono tracking-[0.2em] uppercase text-white/55 flex-1">
                         {group.fullLabel}
                       </span>
                       {/* Switching eight satellite layers one at a time is the
@@ -498,12 +498,12 @@ function LayerPanel({ data, activeLayers, setActiveLayers, isMobile, theme = 'co
                           >
                             {layer.parent && <SubLayerStem />}
                             <ToggleSwitch active={!!isLayerActive} />
-                            <span className={`text-[11px] font-mono uppercase tracking-wider flex-1 transition-colors duration-200 ${isLayerActive ? 'text-white/70' : 'text-white/35'}`}>
+                            <span className={`text-[11px] font-mono uppercase tracking-wider flex-1 transition-colors duration-200 ${isLayerActive ? 'text-white/85' : 'text-white/55'}`}>
                               {layer.label}
-                              {(liveStatus?.[layer.key] ?? layer.description) && <span className={`block mt-0.5 text-[9px] normal-case tracking-normal ${liveStatus?.[layer.key] ? 'text-white/55' : 'text-white/35'}`}>{liveStatus?.[layer.key] ?? layer.description}</span>}
+                              {(liveStatus?.[layer.key] ?? layer.description) && <span className={`block mt-0.5 text-[9px] normal-case tracking-normal ${liveStatus?.[layer.key] ? 'text-white/60' : 'text-white/40'}`}>{liveStatus?.[layer.key] ?? layer.description}</span>}
                             </span>
                             {count !== null && (
-                              <span className={`text-[10px] font-mono tabular-nums transition-colors ${isLayerActive ? 'text-white/45' : 'text-white/20'}`}>
+                              <span className={`text-[10px] font-mono tabular-nums transition-colors ${isLayerActive ? 'text-white/55' : 'text-white/30'}`}>
                                 {count.toLocaleString()}
                               </span>
                             )}

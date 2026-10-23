@@ -15,7 +15,7 @@ import type { RunState } from '@/lib/oi/state';
 import { LABEL, T } from './theme';
 
 /** Each world's colour, down one gold scale: the first (the likeliest course) in bright gold, then champagne, ivory and greys. */
-export const WORLD_COLORS = ['var(--gold-light)', 'var(--oi-alt)', '#E8E6E0', '#8C877C', 'var(--gold-dim)'];
+export const WORLD_COLORS = ['var(--gold-light)', 'var(--oi-alt)', '#E3F0EE', '#8C877C', 'var(--gold-dim)'];
 
 const DAY = 86_400_000;
 

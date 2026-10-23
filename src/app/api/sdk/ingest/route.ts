@@ -102,7 +102,7 @@ function toStored(source: string, entity: Located) {
     timestamp: entity.timestamp || new Date().toISOString(),
     properties: entity.properties || {},
     display: entity.display || {
-      color: '#D4AF37',
+      color: '#3DDCBF',
       icon: 'dot-gold',
       layerType: 'circle',
       glow: false,

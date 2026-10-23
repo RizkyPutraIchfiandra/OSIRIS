@@ -298,7 +298,7 @@ export function GraphView({ s, selected, onSelect }: { s: RunState; selected: st
                   className="oi-graph-in"
                   strokeLinecap={e.kind === 'cite' ? 'round' : undefined}
                   style={{
-                    stroke: e.kind === 'evidence' || e.kind === 'cite' ? `color-mix(in srgb, ${tone} 60%, #e8e6e0)` : tone,
+                    stroke: e.kind === 'evidence' || e.kind === 'cite' ? `color-mix(in srgb, ${tone} 60%, #e3f0ee)` : tone,
                     strokeWidth: (e.kind === 'relation' ? 1 + e.strength * 1.6 : e.kind === 'move' ? 0.9 + e.strength : e.kind === 'cite' ? 1.4 : 1) + (on ? 0.8 : 0),
                     strokeDasharray: e.kind === 'cite' ? CITE_DASH : undefined,
                     opacity: lit ? (on ? 1 : 0.06) : BASE_OPACITY[e.kind],

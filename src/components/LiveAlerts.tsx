@@ -300,7 +300,7 @@ export function urgency(item: AlertItem): number {
 
 const quakeColor = (m: number) => (m >= 6 ? '#FF3D3D' : m >= 5 ? '#FF9500' : m >= 4 ? '#FFD700' : '#9CCC65');
 const PAGER_COLORS: Record<string, string> = { green: '#00E676', yellow: '#FFD700', orange: '#FF9500', red: '#FF3D3D' };
-const blocColor = (b: Bloc | null) => (b ? BLOCS[b].color : '#5C5A54');
+const blocColor = (b: Bloc | null) => (b ? BLOCS[b].color : '#5E7A78');
 
 function compactCount(n: number): string {
   if (n >= 1e6) return `${(n / 1e6).toFixed(1)}M`;
@@ -346,7 +346,7 @@ function NewsCard({ item, now, open, wide, onToggle, onLocate }: {
         <div className="flex items-start gap-2">
           <div className="flex-1 min-w-0 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[9.5px] font-mono uppercase tracking-wider">
             {fresh && <span className="w-1.5 h-1.5 rounded-full animate-osiris-pulse" style={{ background: ACCENT }} title="Posted in the last 15 minutes" />}
-            <span className="font-semibold text-[#E8E6E0]">{item.source_name}</span>
+            <span className="font-semibold text-[#E3F0EE]">{item.source_name}</span>
             {item.lean && <span style={{ color }} title={item.bloc ? BLOCS[item.bloc].label : undefined}>{item.lean}</span>}
           </div>
           <time dateTime={item.published} title={new Date(item.ts).toLocaleString()} className="flex-shrink-0 text-[9.5px] font-mono text-[#8A8880]">
@@ -359,7 +359,7 @@ function NewsCard({ item, now, open, wide, onToggle, onLocate }: {
           {item.title}
         </h4>
         {!open && item.summary && (
-          <p className="mt-1 font-sans text-[11px] leading-relaxed text-[#9B978E] line-clamp-2">{item.summary}</p>
+          <p className="mt-1 font-sans text-[11px] leading-relaxed text-[#9BB3B1] line-clamp-2">{item.summary}</p>
         )}
 
         <div className="mt-1.5 flex flex-wrap items-center gap-1">
@@ -391,7 +391,7 @@ function NewsCard({ item, now, open, wide, onToggle, onLocate }: {
             <Chip key={k} color="#FF9500" title="Matched by the conflict-keyword filter — a word match, not an assessment">{k}</Chip>
           ))}
           {item.views != null && (
-            <span className="ml-auto inline-flex items-center gap-0.5 text-[8.5px] font-mono text-[#5C5A54]" title={`${item.views.toLocaleString()} views`}>
+            <span className="ml-auto inline-flex items-center gap-0.5 text-[8.5px] font-mono text-[#5E7A78]" title={`${item.views.toLocaleString()} views`}>
               <Eye className="w-2.5 h-2.5" /> {compactCount(item.views)}
             </span>
           )}
@@ -450,14 +450,14 @@ function NewsCard({ item, now, open, wide, onToggle, onLocate }: {
 
           {item.carriers.length > 0 && (
             <div>
-              <div className="mb-1 text-[8.5px] font-mono tracking-widest text-[#5C5A54]">ALSO CARRIED BY</div>
+              <div className="mb-1 text-[8.5px] font-mono tracking-widest text-[#5E7A78]">ALSO CARRIED BY</div>
               <ul className="space-y-0.5">
                 {item.carriers.map(c => (
                   <li key={c.source} className="flex items-center gap-1.5 text-[10px] font-mono">
                     <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: blocColor(c.bloc) }} />
                     <span className="text-[#C9C5BC]">{c.source_name}</span>
                     {c.lean && <span className="truncate uppercase text-[8.5px]" style={{ color: blocColor(c.bloc) }}>{c.lean}</span>}
-                    <span className="ml-auto flex-shrink-0 text-[#5C5A54]">{c.published ? timeAgo(c.published, now) : ''}</span>
+                    <span className="ml-auto flex-shrink-0 text-[#5E7A78]">{c.published ? timeAgo(c.published, now) : ''}</span>
                     {c.link && (
                       <a href={c.link} target="_blank" rel="noopener noreferrer" className="flex-shrink-0 text-[var(--cyan-primary)] hover:opacity-70" aria-label={`Open ${c.source_name} post`}>
                         <ExternalLink className="w-2.5 h-2.5" />
@@ -485,7 +485,7 @@ function NewsCard({ item, now, open, wide, onToggle, onLocate }: {
                 href={item.reply_to}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 rounded border border-white/10 px-2 py-1 text-[9.5px] font-mono tracking-wider text-[#9B978E] hover:bg-white/5"
+                className="inline-flex items-center gap-1 rounded border border-white/10 px-2 py-1 text-[9.5px] font-mono tracking-wider text-[#9BB3B1] hover:bg-white/5"
               >
                 <CornerDownRight className="w-2.5 h-2.5" /> IN REPLY TO
               </a>
@@ -506,7 +506,7 @@ function NewsCard({ item, now, open, wide, onToggle, onLocate }: {
                 type="button"
                 onClick={() => onLocate(item.coords![0], item.coords![1])}
                 title={item.anchor ? `Approximate: the centroid for "${item.anchor}", not the event location` : 'Approximate location'}
-                className="inline-flex items-center gap-1 rounded border border-white/10 px-2 py-1 text-[9.5px] font-mono tracking-wider text-[#9B978E] hover:bg-white/5"
+                className="inline-flex items-center gap-1 rounded border border-white/10 px-2 py-1 text-[9.5px] font-mono tracking-wider text-[#9BB3B1] hover:bg-white/5"
               >
                 <MapPin className="w-2.5 h-2.5" /> ≈ {(item.anchor || 'region').toUpperCase()}
               </button>
@@ -545,7 +545,7 @@ function StatementCard({ speaker, items, now, open, wide, onToggle }: {
         <div className="flex items-start gap-2">
           <div className="flex-1 min-w-0 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[9.5px] font-mono uppercase tracking-wider">
             {fresh && <span className="w-1.5 h-1.5 rounded-full animate-osiris-pulse" style={{ background: ACCENT }} title="Posted in the last 15 minutes" />}
-            <span className="font-semibold text-[#E8E6E0]">{lead.source_name}</span>
+            <span className="font-semibold text-[#E3F0EE]">{lead.source_name}</span>
             {lead.lean && <span style={{ color }}>{lead.lean}</span>}
           </div>
           <time dateTime={lead.published} title={new Date(lead.ts).toLocaleString()} className="flex-shrink-0 text-[9.5px] font-mono text-[#8A8880]">
@@ -564,7 +564,7 @@ function StatementCard({ speaker, items, now, open, wide, onToggle }: {
             <p className={`flex-1 min-w-0 font-sans text-[11px] leading-relaxed text-[#C9C5BC] whitespace-pre-line ${open ? '' : 'line-clamp-2'}`}>
               {quoteOf(item, speaker, open)}
             </p>
-            <span className="flex flex-shrink-0 items-center gap-1 pt-0.5 text-[9px] font-mono text-[#5C5A54]">
+            <span className="flex flex-shrink-0 items-center gap-1 pt-0.5 text-[9px] font-mono text-[#5E7A78]">
               {item.media && (item.media.kind === 'video' ? <Play className="w-2.5 h-2.5" /> : <ImageIcon className="w-2.5 h-2.5" />)}
               {timeAgo(item.ts, now).replace(' ago', '')}
               {item.link && (
@@ -654,12 +654,12 @@ function WarningCard({ item, now, onLocate }: { item: WarningAlert; now: number;
         <p className="mt-1 font-sans text-[12px] leading-snug text-[#F2EFE8] line-clamp-3">{item.title}</p>
 
         {item.area && (
-          <p className="mt-1 font-sans text-[10.5px] leading-snug text-[#9B978E] line-clamp-2" title={item.area}>{item.area}</p>
+          <p className="mt-1 font-sans text-[10.5px] leading-snug text-[#9BB3B1] line-clamp-2" title={item.area}>{item.area}</p>
         )}
 
         <div className="mt-1.5 flex flex-wrap items-center gap-1">
           <Chip color={color} title="As the issuer graded it">{item.severity} severity</Chip>
-          {left && <Chip color={left === 'expired' ? '#5C5A54' : '#8A8880'} title={`Runs until ${new Date(item.expires!).toLocaleString()}`}>{left}</Chip>}
+          {left && <Chip color={left === 'expired' ? '#5E7A78' : '#8A8880'} title={`Runs until ${new Date(item.expires!).toLocaleString()}`}>{left}</Chip>}
           <div className="ml-auto flex items-center gap-1">
             <button
               type="button"
@@ -924,7 +924,7 @@ export default function LiveAlerts({ data, onLocate, onWatchFeed, onRefresh, pin
               className={`flex-1 rounded border px-1 py-1 text-center transition-colors ${active ? 'bg-white/[0.06]' : 'hover:bg-white/[0.04]'}`}
               style={{ borderColor: quiet ? '#26262A' : `${stat.color}55` }}
             >
-              <div className="text-[12px] font-mono font-bold leading-none tabular-nums" style={{ color: quiet ? '#5C5A54' : stat.color }}>{stat.value}</div>
+              <div className="text-[12px] font-mono font-bold leading-none tabular-nums" style={{ color: quiet ? '#5E7A78' : stat.color }}>{stat.value}</div>
               <div className="mt-0.5 text-[7.5px] font-mono tracking-widest text-[#8A8880]">{stat.label}</div>
             </button>
           );
@@ -939,7 +939,7 @@ export default function LiveAlerts({ data, onLocate, onWatchFeed, onRefresh, pin
             role="tab"
             aria-selected={tab === t.id}
             onClick={() => selectTab(t.id)}
-            className={`flex-1 rounded px-1.5 py-1 text-[10px] font-mono tracking-wider transition-all ${tab === t.id ? 'bg-[var(--cyan-primary)]/15 text-[var(--cyan-primary)] border border-[var(--cyan-primary)]/45' : 'text-[#8A8880] border border-transparent hover:text-[#E8E6E0] hover:bg-[#2A2A28]'}`}
+            className={`flex-1 rounded px-1.5 py-1 text-[10px] font-mono tracking-wider transition-all ${tab === t.id ? 'bg-[var(--cyan-primary)]/15 text-[var(--cyan-primary)] border border-[var(--cyan-primary)]/45' : 'text-[#8A8880] border border-transparent hover:text-[#E3F0EE] hover:bg-[#2A2A28]'}`}
           >
             {t.label} <span className="opacity-60 tabular-nums">{t.count}</span>
           </button>
@@ -950,15 +950,15 @@ export default function LiveAlerts({ data, onLocate, onWatchFeed, onRefresh, pin
       <div className="flex gap-1.5">
         <label className="relative flex-1 min-w-0">
           <span className="sr-only">Search alerts</span>
-          <Search className="pointer-events-none absolute left-2 top-1/2 h-3 w-3 -translate-y-1/2 text-[#5C5A54]" />
+          <Search className="pointer-events-none absolute left-2 top-1/2 h-3 w-3 -translate-y-1/2 text-[#5E7A78]" />
           <input
             value={query}
             onChange={e => setQuery(e.target.value)}
             placeholder={tab === 'feeds' ? 'Search feeds…' : 'Search headlines, places, channels…'}
-            className="w-full rounded border border-[#2A2A28] bg-black/30 py-1 pl-6 pr-6 text-[11px] text-[#E8E6E0] placeholder:text-[#5C5A54] outline-none focus:border-[var(--cyan-primary)]/50"
+            className="w-full rounded border border-[#2A2A28] bg-black/30 py-1 pl-6 pr-6 text-[11px] text-[#E3F0EE] placeholder:text-[#5E7A78] outline-none focus:border-[var(--cyan-primary)]/50"
           />
           {query && (
-            <button onClick={() => setQuery('')} className="absolute right-1.5 top-1/2 -translate-y-1/2 text-[#5C5A54] hover:text-white" aria-label="Clear search">
+            <button onClick={() => setQuery('')} className="absolute right-1.5 top-1/2 -translate-y-1/2 text-[#5E7A78] hover:text-white" aria-label="Clear search">
               <X className="h-3 w-3" />
             </button>
           )}
@@ -997,14 +997,14 @@ export default function LiveAlerts({ data, onLocate, onWatchFeed, onRefresh, pin
         <div className={maximized ? 'flex flex-wrap gap-1' : '-mx-3 flex gap-1 overflow-x-auto px-3 pb-0.5 styled-scrollbar'}>
           {threads.map(t => {
             const active = t.id === threadId;
-            const dot = t.perspective === 'cross' ? '#00E676' : t.perspective === 'single' ? '#FF9500' : '#5C5A54';
+            const dot = t.perspective === 'cross' ? '#00E676' : t.perspective === 'single' ? '#FF9500' : '#5E7A78';
             return (
               <button
                 key={t.id}
                 onClick={() => selectThread(active ? null : t.id)}
                 aria-pressed={active}
                 title={`${t.count} reports from ${t.sources.length} channels${t.topics.length ? ` — ${t.topics.join(', ')}` : ''}`}
-                className={`flex flex-shrink-0 items-center gap-1 rounded-full border px-2 py-0.5 text-[9.5px] font-mono whitespace-nowrap transition-colors ${active ? 'text-white' : 'text-[#9B978E] hover:text-[#E8E6E0] border-[#2A2A28] hover:border-[#3A3A38]'}`}
+                className={`flex flex-shrink-0 items-center gap-1 rounded-full border px-2 py-0.5 text-[9.5px] font-mono whitespace-nowrap transition-colors ${active ? 'text-white' : 'text-[#9BB3B1] hover:text-[#E3F0EE] border-[#2A2A28] hover:border-[#3A3A38]'}`}
                 style={active ? { borderColor: `${ACCENT}99`, background: `${ACCENT}22` } : undefined}
               >
                 <span className="h-1.5 w-1.5 rounded-full" style={{ background: dot }} />
@@ -1034,7 +1034,7 @@ export default function LiveAlerts({ data, onLocate, onWatchFeed, onRefresh, pin
         if (!feeds.length) return null;
         return (
           <section key={region}>
-            <h5 className="mb-1 text-[8.5px] font-mono tracking-widest text-[#5C5A54]">{label}</h5>
+            <h5 className="mb-1 text-[8.5px] font-mono tracking-widest text-[#5E7A78]">{label}</h5>
             <div className="space-y-1">
               {feeds.map(f => (
                 <button
@@ -1044,9 +1044,9 @@ export default function LiveAlerts({ data, onLocate, onWatchFeed, onRefresh, pin
                   className="flex w-full items-center gap-2 rounded-md border border-[#26262A] bg-[#111111]/70 px-2.5 py-1.5 text-left transition-colors hover:bg-[#17171B] hover:border-[#34343A]"
                 >
                   <Radio className="h-3 w-3 flex-shrink-0 text-[#FF4081]" />
-                  <span className="flex-1 min-w-0 truncate text-[11.5px] text-[#E8E6E0]">{f.name}</span>
+                  <span className="flex-1 min-w-0 truncate text-[11.5px] text-[#E3F0EE]">{f.name}</span>
                   <span className="flex-shrink-0 text-[9px] font-mono uppercase text-[#8A8880]">{f.city}, {f.country}</span>
-                  <span className="flex-shrink-0 rounded bg-white/5 px-1 text-[8px] font-mono uppercase text-[#5C5A54]">{f.category}</span>
+                  <span className="flex-shrink-0 rounded bg-white/5 px-1 text-[8px] font-mono uppercase text-[#5E7A78]">{f.category}</span>
                 </button>
               ))}
             </div>
@@ -1060,7 +1060,7 @@ export default function LiveAlerts({ data, onLocate, onWatchFeed, onRefresh, pin
       {[0, 1, 2].map(i => (
         <div key={i} className="h-[74px] animate-pulse rounded-lg border border-[#26262A] bg-[#111111]/60" />
       ))}
-      <div className="text-center text-[10px] font-mono text-[#5C5A54]">READING CHANNELS…</div>
+      <div className="text-center text-[10px] font-mono text-[#5E7A78]">READING CHANNELS…</div>
     </div>
   ) : list.length === 0 ? (
     filtersActive
@@ -1070,7 +1070,7 @@ export default function LiveAlerts({ data, onLocate, onWatchFeed, onRefresh, pin
     <div className="space-y-3">
       {grouped.map(group => (
         <section key={group.label}>
-          <h5 className={`sticky top-0 z-10 -mx-1 mb-1.5 px-1 py-1 text-[8.5px] font-mono tracking-widest text-[#5C5A54] backdrop-blur-md ${maximized ? 'bg-[#0a0a09]/90' : 'bg-[#08080c]/80'}`}>
+          <h5 className={`sticky top-0 z-10 -mx-1 mb-1.5 px-1 py-1 text-[8.5px] font-mono tracking-widest text-[#5E7A78] backdrop-blur-md ${maximized ? 'bg-[#0a0a09]/90' : 'bg-[#08080c]/80'}`}>
             {group.label} <span className="opacity-60">· {group.units.reduce((n, u) => n + (u.kind === 'statement' ? u.items.length : 1), 0)}</span>
           </h5>
           <div className={maximized ? 'grid gap-2 grid-cols-1 xl:grid-cols-2 items-start' : 'space-y-2'}>
@@ -1164,7 +1164,7 @@ export default function LiveAlerts({ data, onLocate, onWatchFeed, onRefresh, pin
             </button>
           </div>
         </div>
-        <div className="flex items-center gap-1.5 px-3 pb-1.5 text-[9px] font-mono tracking-wider text-[#5C5A54] whitespace-nowrap overflow-hidden">
+        <div className="flex items-center gap-1.5 px-3 pb-1.5 text-[9px] font-mono tracking-wider text-[#5E7A78] whitespace-nowrap overflow-hidden">
           {sources.length > 0 ? (
             <span
               title={sourcesTitle}
