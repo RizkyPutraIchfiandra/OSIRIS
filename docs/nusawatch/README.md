@@ -1,5 +1,8 @@
 # NusaWatch — operations and deployment
 
+Live deployment: **https://nusawatch.vercel.app** (fenced; push to `master`
+deploys it).
+
 NusaWatch is a fenced, Indonesia-first earthquake watch surface built on a fork
 of [OSIRIS](../..). It is **not** an official BMKG product and **not** an early
 warning system. It shows what public catalogues published, with provenance and
