@@ -36,6 +36,25 @@ jobs:
       - name: Unit tests
         run: npx vitest run
 
+      # The repository has 1,600+ pre-existing problems in the upstream
+      # dashboard, so a repo-wide lint gate would fail on every PR and be
+      # switched off within a week. The NusaWatch surface is clean and is
+      # gated here; widening the gate is tracked separately.
+      - name: Lint the NusaWatch surface
+        run: >
+          npx eslint
+          src/app/watch
+          src/app/api/nusawatch
+          src/components/nusawatch
+          src/lib/nusawatch
+          src/middleware.ts
+          src/middleware.test.ts
+
+      - name: Build
+        run: npm run build
+        env:
+          NUSAWATCH_FENCE: "1"
+
       # Production dependencies only: the dev tool chain (vitest, eslint)
       # never ships in the image.
       - name: Dependency advisories

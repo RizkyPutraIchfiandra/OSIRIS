@@ -64,6 +64,16 @@ export function EventList({
                   </>
                 )}
                 <FreshnessBadge freshness={event.freshness} />
+                {event.crossChecks && event.crossChecks.length > 0 && (
+                  <span
+                    className="nw-badge nw-badge--ok nw-badge--plain"
+                    title={`Diverifikasi silang oleh ${event.crossChecks
+                      .map(check => check.sourceName)
+                      .join(', ')}`}
+                  >
+                    ✓ {event.crossChecks.map(check => check.sourceName).join(', ')}
+                  </span>
+                )}
               </span>
             </button>
           </li>

@@ -6,7 +6,7 @@ export const metadata: Metadata = {
     absolute: 'NusaWatch — Gempa terkini Indonesia',
   },
   description:
-    'Daftar gempa terbaru yang dipublikasikan BMKG, dengan filter wilayah, rentang waktu, dan pencarian.',
+    'Daftar gempa terbaru yang dipublikasikan BMKG dan USGS, dengan filter wilayah, rentang waktu, dan pencarian.',
   alternates: { canonical: '/watch' },
 };
 

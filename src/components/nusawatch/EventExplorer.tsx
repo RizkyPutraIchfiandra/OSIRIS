@@ -163,8 +163,8 @@ export function EventExplorer() {
           <div>
             <h1>Gempa bumi terkini di Indonesia</h1>
             <p>
-              Peristiwa yang dipublikasikan BMKG, dengan waktu kejadian, wilayah perkiraan,
-              sumber, dan waktu pengambilan data.
+              Peristiwa yang dipublikasikan BMKG dan USGS, dengan waktu kejadian, wilayah
+              perkiraan, sumber, dan waktu pengambilan data.
             </p>
           </div>
           <dl className="nw-stats">

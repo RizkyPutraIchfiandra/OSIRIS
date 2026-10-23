@@ -56,6 +56,24 @@ export interface EventSeverity {
   scheme: string;
 }
 
+/**
+ * A second source reporting the same event. Kept separate from the primary
+ * record because the two catalogues disagree — different magnitude, different
+ * hypocentre, different wording — and collapsing that into one number would
+ * hide the disagreement rather than surface it.
+ */
+export interface CrossCheck {
+  sourceId: string;
+  sourceName: string;
+  sourceRecordId?: string;
+  sourceUrl?: string;
+  severityLabel?: string;
+  /** Difference between the two origin times. */
+  timeDeltaSeconds: number;
+  /** Great-circle distance between the two hypocentres. */
+  distanceKm: number;
+}
+
 export interface IntelligenceEvent {
   /** Deterministic; stable across refreshes for the same source record. */
   id: string;
@@ -95,6 +113,12 @@ export interface IntelligenceEvent {
   potential?: string;
   /** Verbatim `Dirasakan` text. */
   feltReports?: string;
+  /**
+   * Other catalogues that reported the same earthquake, within the documented
+   * time/distance window in `dedupe.ts`. Empty when the event was reported by
+   * one source only — which is the common case, not a defect.
+   */
+  crossChecks?: CrossCheck[];
 }
 
 export type SourceHealth = 'ok' | 'degraded' | 'failed' | 'unknown';

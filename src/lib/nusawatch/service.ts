@@ -1,7 +1,9 @@
 import { cachedFetch, peekCache } from './cache';
+import { mergeSources } from './dedupe';
 import { assessFreshness } from './freshness';
-import { BMKG_SOURCE_ID, SOURCES } from './registry';
-import { fetchBmkgEvents, type BmkgFetchResult } from './sources/bmkg';
+import { BMKG_SOURCE_ID, SOURCES, USGS_SOURCE_ID } from './registry';
+import { fetchBmkgEvents } from './sources/bmkg';
+import { fetchUsgsEvents } from './sources/usgs';
 import type { IntelligenceEvent, SourceReport } from './types';
 
 /**
@@ -10,6 +12,10 @@ import type { IntelligenceEvent, SourceReport } from './types';
  * The route does not talk to adapters directly. Everything a reader needs to
  * judge the data — health, last fetch, why it is degraded — is produced here,
  * once, so the API response and the UI cannot disagree about it.
+ *
+ * Sources are loaded independently and in parallel; a failing source degrades
+ * the answer instead of taking it down. Only the route decides that *every*
+ * source failing is a 503.
  */
 
 export interface SourceLoad {
@@ -23,10 +29,25 @@ export interface AllSourcesLoad {
   partial: boolean;
   /** Ingestion time of the newest successful source, for the response header. */
   generatedAt: string;
+  /** Cross-source identity outcome, for tests and diagnostics. */
+  crossChecked: number;
+  addedFromSecondary: number;
 }
 
-function descriptorReport(): Pick<SourceReport, 'id' | 'name' | 'attribution' | 'homepage' | 'limitations'> {
-  const descriptor = SOURCES[BMKG_SOURCE_ID];
+/** The minimum every adapter result shares, regardless of source-specific fields. */
+interface SourceResult {
+  events: IntelligenceEvent[];
+  fetchedAt: string;
+  /** True when the adapter answered with a subset of its endpoints. */
+  partial?: boolean;
+  error?: string;
+}
+
+function descriptorReport(sourceId: string): Pick<
+  SourceReport,
+  'id' | 'name' | 'attribution' | 'homepage' | 'limitations'
+> {
+  const descriptor = SOURCES[sourceId];
   return {
     id: descriptor.id,
     name: descriptor.name,
@@ -36,15 +57,16 @@ function descriptorReport(): Pick<SourceReport, 'id' | 'name' | 'attribution' | 
   };
 }
 
-export async function loadBmkgEvents(): Promise<SourceLoad> {
-  const descriptor = SOURCES[BMKG_SOURCE_ID];
+async function loadSource(
+  sourceId: string,
+  fetcher: () => Promise<SourceResult>,
+): Promise<SourceLoad> {
+  const descriptor = SOURCES[sourceId];
 
   try {
-    const read = await cachedFetch<BmkgFetchResult>(
-      BMKG_SOURCE_ID,
-      () => fetchBmkgEvents(),
-      { ttlMs: descriptor.ttlMs },
-    );
+    const read = await cachedFetch<SourceResult>(sourceId, fetcher, {
+      ttlMs: descriptor.ttlMs,
+    });
 
     const freshness = assessFreshness(read.value.fetchedAt, descriptor.freshForMs);
     const health: SourceReport['health'] =
@@ -53,7 +75,7 @@ export async function loadBmkgEvents(): Promise<SourceLoad> {
     return {
       events: read.value.events,
       report: {
-        ...descriptorReport(),
+        ...descriptorReport(sourceId),
         health,
         eventCount: read.value.events.length,
         lastFetchedAt: read.value.fetchedAt,
@@ -62,12 +84,12 @@ export async function loadBmkgEvents(): Promise<SourceLoad> {
       },
     };
   } catch (error) {
-    const last = peekCache<BmkgFetchResult>(BMKG_SOURCE_ID);
+    const last = peekCache<SourceResult>(sourceId);
 
     return {
       events: [],
       report: {
-        ...descriptorReport(),
+        ...descriptorReport(sourceId),
         health: 'failed',
         eventCount: 0,
         lastFetchedAt: last?.value.fetchedAt,
@@ -78,21 +100,34 @@ export async function loadBmkgEvents(): Promise<SourceLoad> {
   }
 }
 
-export async function loadAllEvents(): Promise<AllSourcesLoad> {
-  const bmkg = await loadBmkgEvents();
-  const reports = [bmkg.report];
+export function loadBmkgEvents(): Promise<SourceLoad> {
+  return loadSource(BMKG_SOURCE_ID, () => fetchBmkgEvents());
+}
 
-  const generatedAt = reports
-    .map(report => report.lastFetchedAt)
-    .filter((value): value is string => Boolean(value))
-    .sort()
-    .at(-1) ?? new Date().toISOString();
+export function loadUsgsEvents(): Promise<SourceLoad> {
+  return loadSource(USGS_SOURCE_ID, () => fetchUsgsEvents());
+}
+
+export async function loadAllEvents(): Promise<AllSourcesLoad> {
+  const [bmkg, usgs] = await Promise.all([loadBmkgEvents(), loadUsgsEvents()]);
+  const reports = [bmkg.report, usgs.report];
+
+  const merged = mergeSources(bmkg.events, usgs.events);
+
+  const generatedAt =
+    reports
+      .map(report => report.lastFetchedAt)
+      .filter((value): value is string => Boolean(value))
+      .sort()
+      .at(-1) ?? new Date().toISOString();
 
   return {
-    events: bmkg.events,
+    events: merged.events,
     reports,
     partial: reports.some(report => report.health !== 'ok'),
     generatedAt,
+    crossChecked: merged.crossChecked,
+    addedFromSecondary: merged.addedFromSecondary,
   };
 }
 
@@ -111,7 +146,7 @@ export function describeSources(): Array<{
   cacheExpired?: boolean;
 }> {
   return Object.values(SOURCES).map(descriptor => {
-    const cached = peekCache<BmkgFetchResult>(descriptor.id);
+    const cached = peekCache<SourceResult>(descriptor.id);
     return {
       id: descriptor.id,
       name: descriptor.name,

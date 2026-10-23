@@ -3,7 +3,26 @@
 Record meaningful changes made to the NusaWatch fork. Newest entries first. Do not claim work that has not been verified.
 
 ## Unreleased
-- Phase 1 NusaWatch slice is implemented and verified locally, but uncommitted and not deployed.
+- Phase 1 and Phase 2 are implemented and verified locally. Phase 2 is committed; nothing has been deployed from this machine.
+
+### 2026-10-23 — Phase 2: USGS second source, map, deployment fence, docs, lint baseline
+- Added: `src/lib/nusawatch/sources/usgs.ts` — USGS FDSN adapter over the Indonesian box (`minmagnitude=2.5`, 48 h lookback, limit 100). Chosen after the global `4.5_day.geojson` summary yielded a single in-box event; the FDSN query returned four. Maps only what USGS publishes (no invented magnitude, depth or place), keeps the USGS event URL as provenance, and records USGS-specific limitations. 8 tests against a real captured payload (`__fixtures__/usgs-indonesia.json`).
+- Added: `src/lib/nusawatch/dedupe.ts` — haversine distance and cross-source identity (`MATCH_MAX_SECONDS=120`, `MATCH_MAX_KM=200`). BMKG stays authoritative for display; a match only appends a `crossChecks` entry with the other source's magnitude, URL, time delta and distance, so the disagreement is preserved rather than averaged. Events only the second source reported are appended. 10 tests.
+- Added: `src/lib/nusawatch/map.ts` + `src/components/nusawatch/EventMap.tsx` — GeoJSON projection helper (8 tests) and a MapLibre map that does not extend `OsirisMap.tsx`: local `/dark-matter-style.json`, native clustering, magnitude-scaled points, freshness colours, selected ring, cluster expansion zoom and fly-to on selection. The list auto-scrolls to the selected row. The canvas is `aria-hidden`; the list is the accessible equivalent.
+- Added: `docs/nusawatch/README.md` — architecture, data rules, API, environment variables, local/production commands, standalone artifact, deployment checklist, attribution and licences, known limitations, verified evidence and three screenshots captured from the production build.
+- Changed: `src/lib/nusawatch/{types,registry,service}.ts` — `crossChecks` on the canonical event, a USGS descriptor, and parallel source loading. A failing source now degrades the answer instead of taking it down; 503 remains reserved for "every source failed". Source reports include both catalogues.
+- Changed: `/watch` copy and metadata name both sources; the list shows a `✓ USGS` badge on cross-checked rows and the detail panel shows "Verifikasi silang" with the delta, distance and a link to the USGS record.
+- Changed: `src/middleware.ts` — `NUSAWATCH_FENCE=1` serves only `/watch`, `/api/nusawatch/*`, `/api/health` and static assets; `/` redirects to `/watch`; everything else 404s. `/robots.txt` and `/sitemap.xml` are rewritten for NusaWatch instead of advertising OSIRIS. The matcher now includes `/api` so the fence can see it, and analytics are skipped for the NusaWatch surface and every API route (previously each `/watch` view sent the visitor's IP to the OSIRIS Umami instance). 10 tests.
+- Changed: `eslint.config.mjs` — ignores the 1.3 MB single-line `src/lib/transit-routes.generated.ts`, and derives an override that switches the React Compiler (`react-hooks/*`) rules off for `src/components/WorldRemote.tsx`, the one legacy component that exhausts the Node heap. Everything else keeps the rules.
+- Changed: `.github/workflows/ci.yml` — CI now lints the NusaWatch surface and builds with `NUSAWATCH_FENCE=1` in addition to type-check, tests and dependency audit.
+- Fixed: the deployment surface no longer leaks the OSIRIS robots/sitemap, and NusaWatch pages no longer send analytics beacons.
+- Tests/checks: `npx tsc --noEmit` PASS. `npx vitest run` PASS — 135 files passed, 2 skipped (137 collected); 1,546 tests passed, 22 skipped (+37 over Phase 1). Targeted `npx eslint` on the NusaWatch surface, middleware and config PASS (0). `npm run lint` completes (previously exit 134/OOM): 1,636 pre-existing problems (464 errors, 1,172 warnings) in 133 upstream files, none in NusaWatch. `npm run build` PASS with only the 3 pre-existing Turbopack warnings.
+- Tests/checks (standalone artifact, `NUSAWATCH_FENCE=1`): `/` 307; `/watch` 200; `/api/nusawatch/events` 200 with 29 live events from 2 sources and `partial=false`; `/api/health` 200; CSS 200; NusaWatch robots/sitemap; `/api/earthquakes`, `/bolags`, `/api/osint/people` 404.
+- Tests/checks (real Chrome 155 via CDP, 1440 px and 390 px, production build): 29 rows; `scrollWidth === clientWidth`; map canvas 1398×380 with CARTO/OSM attribution; zero page errors; filter, row selection, map fly-to, reset and empty state verified; `✓ USGS` badge and cross-check panel verified.
+- Tests/checks (live cross-source): BMKG M5.2 Bengkulu vs USGS M4.9 — 3.3 s and 34.1 km apart, one BMKG event with a USGS cross-check; two USGS-only events kept.
+- Tests/checks not run: Docker build/run (Docker is not installed on this machine); GitHub Actions execution (the workflow runs the same commands that pass locally).
+- Known limitations: region labels remain coordinate approximations (a Banda Sea event can be labelled Maluku); `/watch` still inherits the OSIRIS manifest, favicons and `themeColor` from the root layout; BMKG terms of use remain unreviewed; the cache is per process; the map needs WebGL and falls back to a message plus the list.
+- Related task: NW-011 to NW-015 (DONE).
 
 ### 2026-10-23 — Phase 1: BMKG event API and fenced `/watch` surface
 - Added: `src/lib/nusawatch/` — canonical event model and pipeline:

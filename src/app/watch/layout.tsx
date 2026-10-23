@@ -8,12 +8,12 @@ export const metadata: Metadata = {
     template: '%s | NusaWatch',
   },
   description:
-    'Pantauan gempa bumi Indonesia dari data publik BMKG, lengkap dengan waktu kejadian, wilayah perkiraan, sumber, dan status kesegaran data.',
+    'Pantauan gempa bumi Indonesia dari data publik BMKG dan USGS, lengkap dengan waktu kejadian, wilayah perkiraan, sumber, dan status kesegaran data.',
   alternates: { canonical: '/watch' },
   openGraph: {
     title: 'NusaWatch — Pantauan Gempa Indonesia',
     description:
-      'Peristiwa gempa dari data publik BMKG, dengan provenance dan status kesegaran yang bisa diperiksa.',
+      'Peristiwa gempa dari data publik BMKG dan USGS, dengan provenance dan status kesegaran yang bisa diperiksa.',
     type: 'website',
     locale: 'id_ID',
     url: '/watch',
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     card: 'summary',
     title: 'NusaWatch — Pantauan Gempa Indonesia',
     description:
-      'Peristiwa gempa dari data publik BMKG, dengan provenance dan status kesegaran yang bisa diperiksa.',
+      'Peristiwa gempa dari data publik BMKG dan USGS, dengan provenance dan status kesegaran yang bisa diperiksa.',
   },
   other: {
     'apple-mobile-web-app-title': 'NusaWatch',
@@ -54,7 +54,7 @@ export default function WatchLayout({ children }: { children: ReactNode }) {
           </div>
           <div className="nw-header-meta">
             <span>Data gempa</span>
-            <strong>BMKG</strong>
+            <strong>BMKG · USGS</strong>
           </div>
         </div>
       </header>
@@ -68,8 +68,9 @@ export default function WatchLayout({ children }: { children: ReactNode }) {
             dan bukan sistem peringatan dini.
           </p>
           <p>
-            Data gempa: Badan Meteorologi, Klimatologi, dan Geofisika. Ketentuan penggunaan
-            data mengikuti penyedia masing-masing.
+            Data gempa: Badan Meteorologi, Klimatologi, dan Geofisika (BMKG) dan U.S.
+            Geological Survey (USGS). Ketentuan penggunaan data mengikuti penyedia
+            masing-masing.
           </p>
         </div>
       </footer>

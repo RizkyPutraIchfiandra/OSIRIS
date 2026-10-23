@@ -40,6 +40,45 @@ export function middleware(request: NextRequest, event: NextFetchEvent) {
       return NextResponse.redirect(target, 307);
     }
 
+    /* The upstream `public/robots.txt` and `public/sitemap.xml` describe the
+     * OSIRIS dashboard, its scanner and OSINT routes. A NusaWatch deployment
+     * must not hand that to crawlers, so both are answered here instead. The
+     * matcher lists them explicitly because the asset pattern excludes
+     * `.txt` and `.xml`. */
+    if (pathname === '/robots.txt') {
+      return new NextResponse(
+        [
+          '# NusaWatch — pantauan gempa Indonesia',
+          'User-agent: *',
+          'Allow: /watch',
+          'Disallow: /api/',
+          '',
+          `Sitemap: ${request.nextUrl.origin}/sitemap.xml`,
+          '',
+        ].join('\n'),
+        { headers: { 'content-type': 'text/plain; charset=utf-8' } },
+      );
+    }
+
+    if (pathname === '/sitemap.xml') {
+      const lastmod = new Date().toISOString().slice(0, 10);
+      return new NextResponse(
+        [
+          '<?xml version="1.0" encoding="UTF-8"?>',
+          '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+          '  <url>',
+          `    <loc>${request.nextUrl.origin}/watch</loc>`,
+          `    <lastmod>${lastmod}</lastmod>`,
+          '    <changefreq>hourly</changefreq>',
+          '    <priority>1.0</priority>',
+          '  </url>',
+          '</urlset>',
+          '',
+        ].join('\n'),
+        { headers: { 'content-type': 'application/xml; charset=utf-8' } },
+      );
+    }
+
     if (!isNusawatchSurface(pathname) && !isHealthCheck(pathname)) {
       return new NextResponse('Not Found', {
         status: 404,
@@ -111,5 +150,9 @@ export function middleware(request: NextRequest, event: NextFetchEvent) {
 export const config = {
   matcher: [
     '/((?!_next/static|_next/image|vendor|favicon.ico|sitemap.xml|robots.txt|.*\\.(?:svg|png|jpg|jpeg|gif|webp|mjs|js|css|json|pbf|mvt|woff|woff2|ico|txt)$).*)',
+    /* Listed explicitly: the pattern above skips every `.txt` and `.xml`, and
+       under the fence these two must not serve the upstream OSIRIS copy. */
+    '/robots.txt',
+    '/sitemap.xml',
   ],
 };

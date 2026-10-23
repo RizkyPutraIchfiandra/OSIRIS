@@ -87,6 +87,27 @@ describe('deployment fence', () => {
     expect((await run('/watchtower')).status).toBe(404);
     expect((await run('/api/nusawatch-admin')).status).toBe(404);
   });
+
+  it('replaces the upstream robots.txt and sitemap.xml when fenced', async () => {
+    vi.stubEnv('NUSAWATCH_FENCE', '1');
+
+    const robots = await run('/robots.txt');
+    expect(robots.status).toBe(200);
+    const robotsBody = await robots.text();
+    expect(robotsBody).toContain('Allow: /watch');
+    expect(robotsBody).not.toContain('Osiris');
+
+    const sitemap = await run('/sitemap.xml');
+    expect(sitemap.status).toBe(200);
+    const sitemapBody = await sitemap.text();
+    expect(sitemapBody).toContain('<loc>http://localhost/watch</loc>');
+    expect(sitemapBody).not.toContain('osirisai.live');
+  });
+
+  it('leaves robots.txt and sitemap.xml to the upstream files when unfenced', async () => {
+    expect((await run('/robots.txt')).headers.get('x-middleware-next')).toBe('1');
+    expect((await run('/sitemap.xml')).headers.get('x-middleware-next')).toBe('1');
+  });
 });
 
 describe('analytics boundary', () => {
