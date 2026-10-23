@@ -1,0 +1,3 @@
+off
+.env*.local
+.vercel

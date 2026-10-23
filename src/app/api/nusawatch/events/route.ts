@@ -46,6 +46,12 @@ export async function GET(request: Request) {
       'Cache-Control': allFailed
         ? 'no-store'
         : 'public, s-maxage=60, stale-while-revalidate=120',
+      /* Vercel's CDN ignores the origin's `s-maxage` on dynamic responses and
+       * rewrites `Cache-Control`; this header is the one it caches on. Both
+       * follow the source TTL, and neither is set when every source failed. */
+      'CDN-Cache-Control': allFailed
+        ? 'no-store'
+        : 'public, s-maxage=60, stale-while-revalidate=120',
       'X-NusaWatch-Partial': load.partial ? 'true' : 'false',
     },
   });

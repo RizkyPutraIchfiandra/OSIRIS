@@ -88,7 +88,9 @@ are ignored. The response contains `events`, `total`, `matched`, `partial`,
 
 Status: `200` even when one source fails (`partial=true`,
 `X-NusaWatch-Partial: true`); `503` only when every source failed.
-`Cache-Control: s-maxage=60, stale-while-revalidate=300`; `no-store` on failure.
+`Cache-Control: public, s-maxage=60, stale-while-revalidate=120` and the same
+value in `CDN-Cache-Control` (the header Vercel's CDN actually caches on;
+`no-store` on both when every source failed).
 
 ### `GET /api/nusawatch/sources`
 
