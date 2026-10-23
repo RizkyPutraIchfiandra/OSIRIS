@@ -7,6 +7,9 @@ on:
   pull_request:
   push:
     branches: [master]
+  # For forks, where push events may stay disabled until an owner enables
+  # Actions, this gives a manual way to run the same checks.
+  workflow_dispatch:
 
 permissions:
   contents: read
