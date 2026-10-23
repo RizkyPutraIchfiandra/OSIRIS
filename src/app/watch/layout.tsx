@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
+import Link from 'next/link';
 import './nusawatch.css';
 
 export const metadata: Metadata = {
@@ -66,6 +67,9 @@ export default function WatchLayout({ children }: { children: ReactNode }) {
           <p>
             NusaWatch adalah fork dari proyek OSIRIS (lisensi MIT). Bukan produk resmi BMKG
             dan bukan sistem peringatan dini.
+          </p>
+          <p>
+            <Link href="/">Buka dasbor lengkap — globe 3D, penerbangan, satelit, CCTV, dan lapisan global lainnya</Link>
           </p>
           <p>
             Data gempa: Badan Meteorologi, Klimatologi, dan Geofisika (BMKG) dan U.S.

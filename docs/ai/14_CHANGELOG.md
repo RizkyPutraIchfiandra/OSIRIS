@@ -3,7 +3,16 @@
 Record meaningful changes made to the NusaWatch fork. Newest entries first. Do not claim work that has not been verified.
 
 ## Unreleased
-- Phase 1 and Phase 2 are implemented and verified locally. Phase 2 is committed; nothing has been deployed from this machine.
+- Phase 1 and Phase 2 are implemented and verified locally. Phase 2 is committed; the fence is off on the production deployment.
+
+### 2026-10-23 — NusaWatch rebrand, Indonesia-first globe, OSIRIS attribution kept
+- Changed: root metadata (`src/app/layout.tsx`) is NusaWatch end to end — title/template, Indonesian description, Indonesia-first keywords, OpenGraph/Twitter cards, locale `id_ID`, Apple web-app title, and an `attribution` meta pointing at the OSIRIS repository. The canonical origin still comes from `NEXT_PUBLIC_SITE_URL`.
+- Changed: dashboard header and splash now say NUSAWATCH with the tagline "GEMPA & INTELIJEN INDONESIA" and an Indonesia/global monitoring line. The OSIRIS eye is replaced by a pulse-in-a-ring mark. On phones the wordmark is hidden because the status pills occupy the same row; the mark alone carries the brand and the splash still spells the name out.
+- Changed: `src/components/OsirisMap.tsx` opens on the Indonesian archipelago (`[118, -2]`, globe zoom 1.8) instead of the viewer's timezone meridian. The existing fly-in to the visitor's city is unchanged.
+- Changed: `public/site.webmanifest`, `public/manifest.json`, `favicon.svg`/`favicon-32.svg`, `favicon.ico` (16+32 PNG payloads), `favicon-16x16.png`, `favicon-32x32.png`, `apple-touch-icon.png`, `android-chrome-192/512`, `icon-192.png`, `osiris-icon.png` and `og-image.png` are regenerated from one NusaWatch mark. The OG card is rendered with Chrome at 1200×630.
+- Changed: share copy (`SharePanel`), JSON-LD (`OsirisStructuredData`, now using `NEXT_PUBLIC_SITE_URL` with an `isBasedOn` link to OSIRIS), docs metadata/header (`Docs · OSIRIS (MIT)`), privacy metadata and intro, and the watch footer all carry the new name.
+- Attribution: the dashboard status bar links `OSIRIS · MIT` to the upstream repository; the SUPPORT menu points at the upstream Ko-fi and GitHub instead of selling upstream merch as this deployment's own; `/watch` keeps its fork notice.
+- Verified: `tsc --noEmit` clean, 1,546 tests pass, `VERCEL=1 npm run build` clean, desktop and mobile screenshots of the rebranded dashboard, `/watch` footer link present.
 
 ### 2026-10-23 — Phase 2: USGS second source, map, deployment fence, docs, lint baseline
 - Added: `src/lib/nusawatch/sources/usgs.ts` — USGS FDSN adapter over the Indonesian box (`minmagnitude=2.5`, 48 h lookback, limit 100). Chosen after the global `4.5_day.geojson` summary yielded a single in-box event; the FDSN query returned four. Maps only what USGS publishes (no invented magnitude, depth or place), keeps the USGS event URL as provenance, and records USGS-specific limitations. 8 tests against a real captured payload (`__fixtures__/usgs-indonesia.json`).

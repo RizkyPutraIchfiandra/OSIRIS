@@ -14,12 +14,6 @@ const DiscordIcon = () => (
   </svg>
 );
 
-const XIcon = () => (
-  <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/>
-  </svg>
-);
-
 const DocsIcon = () => (
   <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
     <path d="M4 4.5A1.5 1.5 0 0 1 5.5 3H10a2 2 0 0 1 2 2 2 2 0 0 1 2-2h4.5A1.5 1.5 0 0 1 20 4.5v13a1.5 1.5 0 0 1-1.5 1.5H14a2 2 0 0 0-2 2 2 2 0 0 0-2-2H5.5A1.5 1.5 0 0 1 4 17.5z"/>
@@ -156,11 +150,12 @@ export default function GlobalStatusBar({ revealed = true }: { revealed?: boolea
           >
             <DiscordIcon />
           </a>
-          {/* X / Twitter */}
-          <a href="https://x.com/soulsimplifai" target="_blank" rel="noopener noreferrer"
-            className="h-full px-2.5 flex items-center gap-1.5 text-white/40 hover:text-white hover:bg-white/[0.04] border-r border-white/[0.04] transition-all duration-200"
+          {/* Upstream attribution — MIT keeps the notice; a visible credit is the honest version. */}
+          <a href="https://github.com/simplifaisoul/osiris" target="_blank" rel="noopener noreferrer"
+            title="NusaWatch dibangun dari OSIRIS (MIT)"
+            className="h-full px-2.5 flex items-center gap-1.5 text-white/40 hover:text-[var(--gold-primary)] hover:bg-white/[0.04] border-r border-white/[0.04] transition-all duration-200"
           >
-            <XIcon />
+            <span className="text-[9px] font-bold tracking-[0.15em] uppercase">OSIRIS · MIT</span>
           </a>
           {/* Documentation & API reference */}
           <Link href="/docs" prefetch title="Documentation & API Reference" aria-label="Documentation & API Reference"

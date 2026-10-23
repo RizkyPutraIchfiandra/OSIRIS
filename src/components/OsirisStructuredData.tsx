@@ -1,20 +1,22 @@
 /**
- * Structured data for the OSIRIS dashboard at `/`.
+ * Structured data for the NusaWatch dashboard at `/`.
  *
  * This used to sit in the root layout, which meant every route — including
  * `/watch` — shipped a JSON-LD block advertising browser port scanning and
  * CCTV search. Structured data describes the page that carries it, so it now
  * lives with the page it describes.
  */
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://nusawatch.vercel.app').replace(/\/+$/, '');
+
 export default function OsirisStructuredData() {
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'WebApplication',
-    name: 'OSIRIS — OSINT Toolkit & Intelligence Platform',
-    alternateName: ['OSIRIS', 'OsirisAI', 'Osiris OSINT'],
-    url: 'https://osirisai.live',
+    name: 'NusaWatch — Gempa & Intelijen Indonesia',
+    alternateName: ['NusaWatch', 'NusaWatch Indonesia', 'OSIRIS'],
+    url: SITE_URL,
     description:
-      'The open-source Palantir alternative. Track live aircraft, satellites, and worldwide CCTV cameras on a 3D globe. Run Nmap scans, DNS lookups, WHOIS queries, SSL cert analysis & threat intelligence — all from your browser. 20+ data sources including live earthquake, wildfire, cyber threat and conflict feeds, plus mapped reference data such as nuclear facilities. Free & open source.',
+      'Portal intelijen terbuka dengan fokus Indonesia dan data global. Pantau gempa BMKG & USGS, penerbangan, satelit, CCTV, kebakaran, cuaca, dan ancaman siber di globe 3D — plus alat OSINT dari browser. Dibangun dari OSIRIS (MIT).',
     applicationCategory: 'SecurityApplication',
     operatingSystem: 'Web',
     browserRequirements: 'Requires a modern web browser',
@@ -25,33 +27,29 @@ export default function OsirisStructuredData() {
       availability: 'https://schema.org/InStock',
     },
     featureList: [
-      'Nmap port scanning from the browser — no install required',
-      'DNS record lookup (A, AAAA, MX, NS, TXT, CNAME)',
-      'WHOIS domain registration lookup',
-      'SSL/TLS certificate transparency search',
-      'BGP routing & ASN lookup',
-      'IP geolocation & threat intelligence',
-      'Real-time flight tracking via ADS-B',
-      'Satellite tracking (including ISS)',
-      'Worldwide CCTV camera monitoring',
-      'Earthquake monitoring (USGS live feed)',
-      'Wildfire detection (NASA FIRMS satellite data)',
-      'Nuclear facility mapping (curated reference list, not a live feed)',
-      'Severe weather alerts & tracking',
-      'Cyber threat & CVE intelligence',
-      'Space weather & solar storm monitoring',
-      'GPS jamming detection',
-      'Defense & commodity market tracking',
-      'SIGINT news aggregation feed',
-      'Interactive 3D globe with day/night cycle',
-      'Region intelligence dossier reports',
+      'Pantauan gempa Indonesia (BMKG) dan global (USGS)',
+      'Peta & globe 3D interaktif dengan siklus siang/malam',
+      'Pelacakan penerbangan real-time via ADS-B',
+      'Pelacakan satelit (termasuk ISS)',
+      'Pemantauan kamera CCTV seluruh dunia',
+      'Deteksi kebakaran hutan (data satelit NASA FIRMS)',
+      'Peringatan cuaca ekstrem',
+      'Intelijen ancaman siber & CVE',
+      'Cuaca antariksa & badai matahari',
+      'Deteksi GPS jamming',
+      'Pemantauan pasar pertahanan & komoditas',
+      'Agregasi berita SIGINT',
+      'Laporan dossier intelijen kawasan',
+      'Alat OSINT: DNS, WHOIS, sertifikat SSL, BGP/ASN, reputasi IP',
     ],
-    screenshot: 'https://osirisai.live/og-image.png',
+    screenshot: `${SITE_URL}/og-image.png`,
     author: {
       '@type': 'Organization',
-      name: 'Osiris Project',
-      url: 'https://osirisai.live',
+      name: 'NusaWatch',
+      url: SITE_URL,
+      description: 'Dibangun dari proyek OSIRIS (MIT) — https://github.com/simplifaisoul/osiris',
     },
+    isBasedOn: 'https://github.com/simplifaisoul/osiris',
   };
 
   return (

@@ -3,12 +3,12 @@ import DocsClient from './DocsClient';
 import { ENDPOINT_COUNT } from './apiCatalog';
 
 export const metadata: Metadata = {
-  title: 'Documentation & API Reference',
-  description: `Official OSIRIS documentation — self-hosting guide, interface reference, and the complete API reference for all ${ENDPOINT_COUNT} endpoints covering aviation, maritime, seismic, conflict, cyber, and OSINT feeds. No API key required.`,
+  title: 'Dokumentasi & Referensi API',
+  description: `Dokumentasi mesin OSIRIS (MIT) yang menjalankan NusaWatch — panduan self-hosting, referensi antarmuka, dan referensi API lengkap untuk ${ENDPOINT_COUNT} endpoint yang mencakup penerbangan, maritim, seismik, konflik, siber, dan OSINT. Tanpa API key.`,
   alternates: { canonical: '/docs' },
   openGraph: {
-    title: 'OSIRIS — Documentation & API Reference',
-    description: `Self-hosting guide, interface reference, and the complete API reference for all ${ENDPOINT_COUNT} OSIRIS endpoints.`,
+    title: 'NusaWatch — Dokumentasi & Referensi API',
+    description: `Panduan self-hosting, referensi antarmuka, dan referensi API lengkap untuk ${ENDPOINT_COUNT} endpoint OSIRIS yang menjalankan NusaWatch.`,
     url: '/docs',
     type: 'article',
   },

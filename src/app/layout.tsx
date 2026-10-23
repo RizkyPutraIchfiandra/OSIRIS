@@ -6,9 +6,9 @@ import "./globals.css";
  * and a canonical that points at a host you do not own is worse than none.
  * Defaults to the upstream origin, so an unconfigured build is unchanged. */
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://osirisai.live").replace(/\/+$/, "");
-const SITE_NAME = "OSIRIS";
-const SITE_TITLE = "OSIRIS — Open Source Intelligence Platform | Live Flight Tracking, CCTV, OSINT Tools & More";
-const SITE_DESCRIPTION = "The open-source Palantir alternative. Track live aircraft, satellites, and worldwide CCTV cameras on a 3D globe. Run Nmap scans, DNS lookups, WHOIS queries, SSL cert analysis & threat intelligence — all from your browser. 20+ data sources including live earthquake, wildfire, cyber threat and conflict feeds, plus mapped reference data such as nuclear facilities. Free & open source.";
+const SITE_NAME = "NusaWatch";
+const SITE_TITLE = "NusaWatch — Pantauan Gempa & Intelijen Indonesia | Globe 3D, Penerbangan, Satelit";
+const SITE_DESCRIPTION = "Portal intelijen terbuka dengan fokus Indonesia dan data global. Pantau gempa BMKG & USGS, penerbangan, satelit, CCTV, kebakaran, cuaca, dan ancaman siber di globe 3D — plus alat OSINT dari browser. Dibangun dari OSIRIS (MIT).";
 
 export const viewport: Viewport = {
   themeColor: "#D4AF37",
@@ -22,11 +22,16 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
     default: SITE_TITLE,
-    template: "%s | OSIRIS Intelligence",
+    template: "%s | NusaWatch",
   },
   description: SITE_DESCRIPTION,
   keywords: [
-    // OSINT Tools - Primary focus
+    // Indonesia - Primary focus
+    "NusaWatch", "gempa Indonesia", "gempa terkini", "gempa hari ini", "BMKG",
+    "informasi gempa", "gempa bumi", "peringatan tsunami", "monitoring Indonesia",
+    "peta gempa", "globe 3D", "intelijen Indonesia", "data terbuka Indonesia",
+
+    // OSINT Tools
     "OSINT tools", "free OSINT tools", "online OSINT toolkit", "OSINT framework",
     "nmap online", "nmap scanner online", "free nmap scan", "port scanner online",
     "DNS lookup tool", "WHOIS lookup", "reverse DNS", "DNS records",
@@ -55,11 +60,11 @@ export const metadata: Metadata = {
     "defense stocks", "commodities tracker",
     
     // Brand
-    "osiris", "osirisai", "osirisai.live",
+    "nusawatch", "nusawatch.vercel.app", "OSIRIS", "osirisai.live",
   ],
-  authors: [{ name: "Osiris Project", url: SITE_URL }],
-  creator: "Osiris Project",
-  publisher: "Osiris Project",
+  authors: [{ name: "NusaWatch", url: SITE_URL }],
+  creator: "NusaWatch",
+  publisher: "NusaWatch",
   robots: {
     index: true,
     follow: true,
@@ -94,28 +99,26 @@ export const metadata: Metadata = {
     canonical: SITE_URL,
   },
   openGraph: {
-    title: "OSIRIS — The Open-Source Palantir Alternative | Live Flights, CCTV, Satellites & OSINT Tools",
-    description: "Track 10K+ aircraft, 2K satellites & worldwide CCTV on a 3D globe. Run Nmap, DNS, WHOIS & threat intel scans from your browser. 20+ live intelligence feeds. Free. Open source.",
+    title: "NusaWatch — Gempa & Intelijen Indonesia di Globe 3D | Data Global",
+    description: "Pantau gempa BMKG & USGS, penerbangan, satelit, CCTV, kebakaran, cuaca, dan ancaman siber — data global, fokus Indonesia. Dibangun dari OSIRIS (MIT).",
     type: "website",
     siteName: SITE_NAME,
-    locale: "en_US",
+    locale: "id_ID",
     url: SITE_URL,
     images: [
       {
         url: `${SITE_URL}/og-image.png`,
         width: 1200,
         height: 630,
-        alt: "OSIRIS — Open Source Intelligence Platform with Live Tracking & OSINT Tools",
+        alt: "NusaWatch — pantauan gempa dan intelijen Indonesia di globe 3D",
         type: "image/png",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "🛰️ OSIRIS — Open Source Palantir Alternative | Live Tracking + OSINT Tools",
-    description: "Track 10K+ flights, satellites & CCTV worldwide. Run Nmap, DNS, WHOIS scans from your browser. 20+ live intel feeds. Free & open source.",
-    creator: "@simplifaisoul",
-    site: "@simplifaisoul",
+    title: "NusaWatch — Gempa & Intelijen Indonesia di Globe 3D",
+    description: "Gempa BMKG & USGS, penerbangan, satelit, CCTV, dan ancaman siber di globe 3D. Data global, fokus Indonesia.",
     images: [`${SITE_URL}/og-image.png`],
   },
   category: "technology",
@@ -123,10 +126,12 @@ export const metadata: Metadata = {
   other: {
     "apple-mobile-web-app-capable": "yes",
     "apple-mobile-web-app-status-bar-style": "black-translucent",
-    "apple-mobile-web-app-title": "OSIRIS",
+    "apple-mobile-web-app-title": "NusaWatch",
     "mobile-web-app-capable": "yes",
     "msapplication-TileColor": "#06060C",
     "msapplication-config": "none",
+    /* MIT attribution to the upstream project this deployment is built from. */
+    "attribution": "Built on OSIRIS (MIT) — https://github.com/simplifaisoul/osiris",
   },
 };
 
@@ -147,7 +152,7 @@ export default function RootLayout({
         
       </head>
       <body className="antialiased">
-        <ErrorBoundary name="OSIRIS Core">
+        <ErrorBoundary name="NusaWatch Core">
           {children}
         </ErrorBoundary>
       </body>
