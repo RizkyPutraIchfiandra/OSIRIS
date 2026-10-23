@@ -7,6 +7,19 @@
  * without either one reaching into the other's stylesheet.
  */
 
+/* globals.css locks html/body to the viewport (`overflow: hidden`) for the
+ * fullscreen globe. /watch is a scrolling document, and without this the page
+ * renders its full height but the user cannot scroll — the content below the
+ * fold is unreachable. Same release mechanism as `.docs-root`, scoped with
+ * :has() so navigating back to the dashboard restores the lock. */
+html:has(.nw-root),
+html:has(.nw-root) body {
+  height: auto;
+  min-height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
 .nw-root {
   --nw-bg: #070c0f;
   --nw-surface: #0d1519;

@@ -1,7 +1,12 @@
 # NusaWatch — operations and deployment
 
-Live deployment: **https://nusawatch.vercel.app** (fenced; push to `master`
-deploys it).
+Live deployment: **https://nusawatch.vercel.app** (push to `master` deploys it).
+
+The production deployment currently runs **unfenced** (`NUSAWATCH_FENCE=0`) on
+purpose: the full OSIRIS dashboard — globe, flights, satellites, CCTV, feeds,
+OSINT/recon — is served at `/`, and `/watch` remains the Indonesia-focused
+earthquake surface. Set `NUSAWATCH_FENCE=1` to serve only the NusaWatch slice;
+see the deployment checklist for what that blocks.
 
 NusaWatch is a fenced, Indonesia-first earthquake watch surface built on a fork
 of [OSIRIS](../..). It is **not** an official BMKG product and **not** an early
