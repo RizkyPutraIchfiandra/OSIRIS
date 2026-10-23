@@ -1,17 +1,20 @@
 /**
  * The model providers OI can run on, with the visitor's own key.
  *
- * Each provider is a fixed origin. There is deliberately no "custom base URL":
- * the server makes these requests, and a caller-chosen URL would turn the
- * engine into a relay into anything the server can reach.
+ * Every named provider has a fixed origin. The one exception is `custom`: an
+ * OpenAI-compatible endpoint the visitor names, for a gateway, a proxy or a
+ * self-hosted model. That base URL is checked here for shape (HTTPS, public
+ * name, no credentials in the URL) and by the server's SSRF guard before every
+ * request, so OI cannot be turned into a relay into the server's own network.
  *
  * Keys are used for the request in hand and never stored, logged or echoed.
  * Every message that leaves this module has been through `scrub`.
  */
 import { createDemoChat } from './demo';
+import { validateCustomBase } from './endpoint';
 
 export type ProviderId =
-  | 'openai' | 'anthropic' | 'google' | 'openrouter' | 'groq' | 'deepseek' | 'xai' | 'mistral' | 'qwen' | 'demo';
+  | 'openai' | 'anthropic' | 'google' | 'openrouter' | 'groq' | 'deepseek' | 'xai' | 'mistral' | 'qwen' | 'custom' | 'demo';
 
 type Wire = 'openai' | 'anthropic' | 'google' | 'demo';
 
@@ -84,6 +87,14 @@ const DEFS: ProviderDef[] = ([
     id: 'qwen', name: 'Qwen (Alibaba Cloud)', wire: 'openai', base: 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1',
     keyUrl: 'https://modelstudio.console.alibabacloud.com/', keyHint: 'sk-…',
     defaultModel: 'qwen-plus', suggested: ['qwen-plus', 'qwen-max', 'qwen-turbo'], concurrency: 4,
+  },
+  {
+    // An OpenAI-compatible endpoint of the visitor's choosing. The base is not
+    // fixed here: it arrives with the request and is validated as HTTPS and a
+    // public host by both the browser and the server (safeFetch).
+    id: 'custom', name: 'Custom API', wire: 'openai', base: '',
+    keyUrl: '', keyHint: 'the key your endpoint expects',
+    defaultModel: 'gpt-4o-mini', suggested: ['gpt-4o-mini', 'gpt-4o', 'gpt-4.1-mini'], concurrency: 3,
   },
   {
     // Scripted answers for development and tests: the whole pipeline, no key, no cost. Never offered in production.
@@ -218,7 +229,8 @@ export interface ChatResult {
 
 export type ChatFn = (req: ChatRequest) => Promise<ChatResult>;
 
-type FetchLike = typeof fetch;
+/** The calls here always pass an absolute string URL and an init. */
+export type FetchLike = (url: string, init: RequestInit) => Promise<Response>;
 
 /**
  * Optional request fields a model may refuse. Reasoning models reject
@@ -258,15 +270,17 @@ export function canSeeImages(provider: ProviderId, model: string): boolean {
     case 'xai': return /grok-4|vision/.test(m);
     case 'mistral': return /pixtral|mistral-(small|medium)|magistral/.test(m);
     case 'qwen': return /vl|omni|qvq/.test(m);
+    // A custom endpoint could serve anything; assume the usual vision names.
+    case 'custom': return /gpt-4o|gpt-4\.1|gpt-5|gemini|claude|vision|llava|pixtral|qwen.*vl|omni|grok.*vision/.test(m);
     default: return false;
   }
 }
 
-function buildRequest(def: ProviderDef, key: string, model: string, req: ChatRequest, r: Relax): { url: string; init: RequestInit } {
+function buildRequest(def: ProviderDef, base: string, key: string, model: string, req: ChatRequest, r: Relax): { url: string; init: RequestInit } {
   const images = !r.images && req.images?.length ? req.images : [];
   if (def.wire === 'anthropic') {
     return {
-      url: `${def.base}/messages`,
+      url: `${base}/messages`,
       init: {
         method: 'POST',
         headers: { 'content-type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01' },
@@ -287,7 +301,7 @@ function buildRequest(def: ProviderDef, key: string, model: string, req: ChatReq
   }
   if (def.wire === 'google') {
     return {
-      url: `${def.base}/models/${encodeURIComponent(model)}:generateContent`,
+      url: `${base}/models/${encodeURIComponent(model)}:generateContent`,
       init: {
         method: 'POST',
         headers: { 'content-type': 'application/json', 'x-goog-api-key': key },
@@ -312,7 +326,7 @@ function buildRequest(def: ProviderDef, key: string, model: string, req: ChatReq
     headers['X-Title'] = 'OSIRIS OI';
   }
   return {
-    url: `${def.base}/chat/completions`,
+    url: `${base}/chat/completions`,
     init: {
       method: 'POST',
       headers,
@@ -350,8 +364,8 @@ interface OpenAIReply {
   usage?: { prompt_tokens?: number; completion_tokens?: number };
 }
 interface ModelListing {
-  data?: { id?: string; name?: string; display_name?: string }[];
-  models?: { name?: string; displayName?: string; supportedGenerationMethods?: string[] }[];
+  data?: { id?: string; name?: string; display_name?: string; displayName?: string }[];
+  models?: { id?: string; name?: string; display_name?: string; displayName?: string; supportedGenerationMethods?: string[] }[];
 }
 
 function readResponse(def: ProviderDef, body: unknown): ChatResult {
@@ -395,6 +409,12 @@ async function send(def: ProviderDef, key: string, url: string, init: RequestIni
   } catch (err) {
     if (req.signal?.aborted) throw req.signal.reason ?? err;
     if (timeout.aborted) throw new ProviderError('timeout', `${def.name} did not answer in time`);
+    // The SSRF guard refuses a private or reserved target before fetch runs.
+    // Say why, rather than hiding it behind a generic network error.
+    const detail = err instanceof Error ? err.message : '';
+    if (def.id === 'custom' && /safeFetch:/i.test(detail)) {
+      throw new ProviderError('bad_request', `The custom endpoint was refused: ${detail.replace(/^safeFetch:\s*/i, '')}`);
+    }
     throw new ProviderError('network', `Could not reach ${def.name}`);
   }
   const body = await res.text().catch(() => '');
@@ -410,16 +430,26 @@ async function send(def: ProviderDef, key: string, url: string, init: RequestIni
  * A chat function bound to one provider, key and model. It retries once on a
  * busy or slow provider, and adapts to the request fields a model refuses.
  */
-export function createChat(provider: ProviderId, key: string, model: string, f: FetchLike = fetch): ChatFn {
+/** The fixed origin, or the visitor's checked endpoint for `custom`. */
+function baseFor(def: ProviderDef, baseUrl?: string): string {
+  if (def.id !== 'custom') return def.base;
+  const checked = validateCustomBase(baseUrl);
+  if (!checked.ok) throw new ProviderError('bad_request', checked.error);
+  return checked.url;
+}
+
+export function createChat(provider: ProviderId, key: string, model: string, f: FetchLike = fetch, baseUrl?: string): ChatFn {
   const def = BY_ID.get(provider);
   if (!def) throw new ProviderError('bad_request', 'Unknown provider');
   if (def.wire === 'demo') return createDemoChat([300, 1400]);
+  const base = baseFor(def, baseUrl);
+  if (!isPlausibleModel(model)) throw new ProviderError('bad_request', 'Choose a model id for this endpoint.');
   let relax: Relax = { temperature: false, json: false, completionTokens: false, effort: false, images: false };
 
   return async function chat(req: ChatRequest): Promise<ChatResult> {
     let retried = false;
     for (let attempt = 0; attempt < 5; attempt++) {
-      const { url, init } = buildRequest(def, key, model, req, relax);
+      const { url, init } = buildRequest(def, base, key, model, req, relax);
       try {
         const out = readResponse(def, await send(def, key, url, init, req, f));
         if (!out.text.trim()) throw new ProviderError('empty', `${def.name} returned an empty answer`);
@@ -451,6 +481,8 @@ export interface ModelEntry {
 
 /** Ids that are not chat models: embeddings, speech, images, moderation. */
 const NOT_CHAT = /embed|whisper|tts|audio|realtime|transcribe|dall-e|image|moderation|guard|rerank|davinci|babbage|search|computer-use|-instruct$|veo|imagen|aqa|learnlm|gemma-?3n/i;
+/** The same, for a custom endpoint whose names we cannot know: only certain non-chat families are dropped. */
+const NOT_CHAT_CUSTOM = /embed|whisper|tts|audio|realtime|transcribe|dall-e|image|moderation|rerank|guard|computer-use|veo|imagen/i;
 /** OpenAI models served only by its Responses API, which OI does not use: the pro, codex and deep-research models, and video. */
 const OPENAI_RESPONSES_ONLY = /-pro(?:-|$)|codex|deep-research|^sora/i;
 
@@ -458,10 +490,13 @@ const OPENAI_RESPONSES_ONLY = /-pro(?:-|$)|codex|deep-research|^sora/i;
  * The models this key can use, from the provider itself. A rejected key fails
  * here, which is why the panel calls this to check a key before a run.
  */
-export async function listModels(provider: ProviderId, key: string, f: FetchLike = fetch): Promise<{ models: ModelEntry[]; listed: boolean }> {
+export async function listModels(
+  provider: ProviderId, key: string, f: FetchLike = fetch, baseUrl?: string,
+): Promise<{ models: ModelEntry[]; listed: boolean }> {
   const def = BY_ID.get(provider);
   if (!def) throw new ProviderError('bad_request', 'Unknown provider');
   if (def.wire === 'demo') return { models: [{ id: 'scripted', name: 'Scripted demo' }], listed: true };
+  const base = baseFor(def, baseUrl);
   const get = async (url: string, headers: Record<string, string>): Promise<ModelListing> => {
     const req: ChatRequest = { system: '', user: '', json: false, maxTokens: 0, timeoutMs: 15_000 };
     return (await send(def, key, url, { method: 'GET', headers }, req, f)) as ModelListing;
@@ -470,20 +505,29 @@ export async function listModels(provider: ProviderId, key: string, f: FetchLike
   let models: ModelEntry[] = [];
   try {
     if (def.wire === 'anthropic') {
-      const j = await get(`${def.base}/models?limit=100`, { 'x-api-key': key, 'anthropic-version': '2023-06-01' });
+      const j = await get(`${base}/models?limit=100`, { 'x-api-key': key, 'anthropic-version': '2023-06-01' });
       models = (j?.data ?? []).map(m => ({ id: String(m.id), name: String(m.display_name || m.id) }));
     } else if (def.wire === 'google') {
-      const j = await get(`${def.base}/models?pageSize=200`, { 'x-goog-api-key': key });
+      const j = await get(`${base}/models?pageSize=200`, { 'x-goog-api-key': key });
       models = (j?.models ?? [])
         .filter(m => Array.isArray(m.supportedGenerationMethods) && m.supportedGenerationMethods.includes('generateContent'))
         .map(m => ({ id: String(m.name).replace(/^models\//, ''), name: String(m.displayName || m.name) }));
     } else if (def.id === 'openrouter') {
       // OpenRouter lists models without a key, so check the key on its own.
-      await get(`${def.base}/key`, { authorization: `Bearer ${key}` });
-      const j = await get(`${def.base}/models`, {});
+      await get(`${base}/key`, { authorization: `Bearer ${key}` });
+      const j = await get(`${base}/models`, {});
       models = (j?.data ?? []).map(m => ({ id: String(m.id), name: String(m.name || m.id) }));
+    } else if (def.id === 'custom') {
+      // The OpenAI shape, plus the { models: [{ name }] } shape local servers
+      // often return. A provider with no listing endpoint falls through to the
+      // suggested names below.
+      const j = await get(`${base}/models`, { authorization: `Bearer ${key}` });
+      const rows = [...(j?.data ?? []), ...(j?.models ?? [])];
+      models = rows
+        .map(m => ({ id: String(m.id ?? m.name ?? ''), name: String(m.display_name ?? m.displayName ?? m.name ?? m.id ?? '') }))
+        .filter(m => m.id);
     } else {
-      const j = await get(`${def.base}/models`, { authorization: `Bearer ${key}` });
+      const j = await get(`${base}/models`, { authorization: `Bearer ${key}` });
       models = (j?.data ?? []).map(m => ({ id: String(m.id), name: String(m.id) }));
     }
   } catch (err) {
@@ -496,7 +540,10 @@ export async function listModels(provider: ProviderId, key: string, f: FetchLike
 
   const seen = new Set<string>();
   const chat = models
-    .filter(m => isPlausibleModel(m.id) && !NOT_CHAT.test(m.id) && !(def.id === 'openai' && OPENAI_RESPONSES_ONLY.test(m.id)) && !seen.has(m.id) && seen.add(m.id))
+    .filter(m => isPlausibleModel(m.id)
+      && !(def.id === 'custom' ? NOT_CHAT_CUSTOM : NOT_CHAT).test(m.id)
+      && !(def.id === 'openai' && OPENAI_RESPONSES_ONLY.test(m.id))
+      && !seen.has(m.id) && seen.add(m.id))
     .slice(0, 500);
   // Suggested models first, in their order, then the rest A–Z.
   const rank = (id: string) => { const i = def.suggested.indexOf(id); return i < 0 ? 1e3 : i; };

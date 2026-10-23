@@ -14,7 +14,8 @@
 import { randomBytes, randomUUID, timingSafeEqual } from 'node:crypto';
 import { DEPTHS, FatalError, runEngine, type EngineDeps } from './engine';
 import type { SeedScope } from './depths';
-import { createChat, providerInfo, scrub, type ChatFn, type ProviderId } from './providers';
+import { providerInfo, scrub, type ChatFn, type ProviderId } from './providers';
+import { chatFor } from './chat';
 import { applyEvent, currentAnswer, initialState, type RunState } from './state';
 import { pointView } from './forecast';
 import { worldOutcome } from './prompts';
@@ -70,6 +71,8 @@ export interface StartInput {
   provider: ProviderId;
   model: string;
   key: string;
+  /** The checked base URL when the provider is `custom`. */
+  baseUrl?: string;
   ip: string;
 }
 
@@ -150,7 +153,7 @@ export function startRun(input: StartInput, deps: StartDeps = {}): StartResult {
   const depth = DEPTHS[input.depth];
   emit(run, { t: 'start', question: input.question, depth: input.depth, provider: input.provider, model: input.model, actors: depth.actors, periods: depth.periods, worlds: depth.worlds });
 
-  const chat = deps.chat ?? createChat(input.provider, input.key, input.model);
+  const chat = deps.chat ?? chatFor(input.provider, input.key, input.model, input.baseUrl);
   const key = input.key;
   const deadline = setTimeout(() => run.abort.abort(new Error('The run took too long and was stopped.')), LIMITS.deadlineMs);
 

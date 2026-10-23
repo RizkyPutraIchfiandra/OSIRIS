@@ -88,14 +88,21 @@ export default function OiPanel(props: OiPanelProps) {
   const [engineOpen, setEngineOpen] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   // Opened from a button lower down (Run, or Assist's composer), the sheet is brought into view.
+  // On the phone the panel sits in the drawer's own scroller, so it must be scrolled, not the page.
   const scroller = useRef<HTMLDivElement>(null);
-  useEffect(() => { if (engineOpen) scroller.current?.scrollTo({ top: 0, behavior: 'smooth' }); }, [engineOpen]);
+  const sheetRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!engineOpen) return;
+    if (!embedded) { scroller.current?.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+    const t = window.setTimeout(() => sheetRef.current?.scrollIntoView({ block: 'start', behavior: 'smooth' }), 80);
+    return () => window.clearTimeout(t);
+  }, [engineOpen, embedded]);
   const [tab, setTab] = useState<Tab | null>(null);
   const [askTarget, setAskTarget] = useState('report');
 
   const s = oi.state;
   const info = providerInfo(engine.provider);
-  const ready = !info.needsKey || key.length > 0;
+  const ready = (!info.needsKey || key.length > 0) && (engine.provider !== 'custom' || Boolean(engine.baseUrl));
   const selection = s ? resolve(s, selected) : null;
   // Until someone picks a tab: the simulation while it runs, the prediction once there is one.
   const activeTab: Tab = tab ?? (s?.report ? 'report' : 'sim');
@@ -196,7 +203,9 @@ export default function OiPanel(props: OiPanelProps) {
       <AnimatePresence initial={false}>
         {engineOpen && (
           <motion.div key="engine" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.22 }} className="overflow-hidden">
-            <EngineSheet engine={engine} setEngine={setEngine} keyValue={key} setKey={setKey} onDone={() => setEngineOpen(false)} />
+            <div ref={sheetRef}>
+              <EngineSheet engine={engine} setEngine={setEngine} keyValue={key} setKey={setKey} onDone={() => setEngineOpen(false)} />
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -207,7 +216,9 @@ export default function OiPanel(props: OiPanelProps) {
       <AnimatePresence initial={false}>
         {engineOpen && (
           <motion.div key="engine" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.22 }} className="overflow-hidden">
-            <EngineSheet engine={engine} setEngine={setEngine} keyValue={key} setKey={setKey} onDone={() => setEngineOpen(false)} />
+            <div ref={sheetRef}>
+              <EngineSheet engine={engine} setEngine={setEngine} keyValue={key} setKey={setKey} onDone={() => setEngineOpen(false)} />
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

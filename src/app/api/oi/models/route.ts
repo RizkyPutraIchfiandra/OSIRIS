@@ -1,4 +1,5 @@
-import { ProviderError, listModels, pickModel, providerInfo } from '@/lib/oi/providers';
+import { ProviderError, pickModel, providerInfo } from '@/lib/oi/providers';
+import { modelsFor } from '@/lib/oi/chat';
 import { credentials, disabled, disabledResponse, fail, json, limited, readBody } from '@/lib/oi/service';
 
 /**
@@ -6,6 +7,7 @@ import { credentials, disabled, disabledResponse, fail, json, limited, readBody 
  * the provider rejects fails here, before a run spends anything.
  *
  * POST /api/oi/models   { provider }   with X-OI-Key
+ *   A custom endpoint also sends X-OI-Url (or { "base_url": "…" }).
  */
 export const dynamic = 'force-dynamic';
 export const maxDuration = 30;
@@ -21,11 +23,12 @@ export async function POST(req: Request) {
   if (!creds.key && providerInfo(creds.provider).needsKey) return fail(401, 'Send the key in X-OI-Key.');
 
   try {
-    const { models, listed } = await listModels(creds.provider, creds.key ?? '');
+    const { models, listed } = await modelsFor(creds.provider, creds.key ?? '', creds.baseUrl);
     return json({ provider: creds.provider, ok: true, listed, models, default: pickModel(creds.provider, models) });
   } catch (err) {
     if (err instanceof ProviderError) {
-      const status = err.code === 'auth' ? 401 : err.code === 'quota' ? 402 : err.code === 'rate' ? 429 : 502;
+      const status = err.code === 'auth' ? 401 : err.code === 'quota' ? 402 : err.code === 'rate' ? 429
+        : err.code === 'bad_request' ? 400 : 502;
       return fail(status, err.message, { provider: creds.provider, key_url: providerInfo(creds.provider).keyUrl });
     }
     return fail(502, 'Could not reach the provider.');

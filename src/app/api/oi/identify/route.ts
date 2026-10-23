@@ -1,4 +1,5 @@
-import { canSeeImages, createChat, providerInfo, ProviderError } from '@/lib/oi/providers';
+import { canSeeImages, providerInfo, ProviderError } from '@/lib/oi/providers';
+import { chatFor } from '@/lib/oi/chat';
 import { credentials, disabled, disabledResponse, fail, json, limited, readBody } from '@/lib/oi/service';
 import { extractJson } from '@/lib/oi/parse';
 import { IDENTIFY_SYSTEM, MAX_CROPS, identifyPrompt, parseIdentities } from '@/lib/vision/identify';
@@ -46,7 +47,7 @@ export async function POST(req: Request) {
   const camera = typeof body.camera === 'string' ? body.camera : undefined;
 
   try {
-    const chat = createChat(creds.provider, creds.key ?? '', model);
+    const chat = chatFor(creds.provider, creds.key ?? '', model, creds.baseUrl);
     const out = await chat({
       system: IDENTIFY_SYSTEM, user: identifyPrompt(crops.length, camera), json: true, maxTokens: 900, temperature: 0.1, timeoutMs: 45_000,
       images: crops.map(data => ({ mime: 'image/jpeg', data })), signal: req.signal,

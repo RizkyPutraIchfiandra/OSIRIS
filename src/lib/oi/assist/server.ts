@@ -8,7 +8,8 @@
  * When the last step looked through a camera, a model that reads pictures is
  * shown the frame too, alongside the counts the page sent back.
  */
-import { canSeeImages, createChat, providerInfo, ProviderError, type ChatFn, type ChatRequest } from '../providers';
+import { canSeeImages, providerInfo, ProviderError, type ChatFn, type ChatRequest } from '../providers';
+import { chatFor } from '../chat';
 import type { Credentials } from '../service';
 import { parseStep, sanitizeContext, sanitizeMessages, systemPrompt, userPrompt, type AssistMessage, type Step } from './protocol';
 
@@ -47,8 +48,11 @@ export async function assistStep(body: Record<string, unknown>, creds: Credentia
   if (!creds.key && info.needsKey) return { ok: false, status: 401, error: `OI Assist runs on your own ${info.name} key (X-OI-Key or Authorization: Bearer).` };
   const context = sanitizeContext(body.context);
   const model = creds.model || info.defaultModel;
+  if (creds.provider === 'custom' && !creds.baseUrl) {
+    return { ok: false, status: 400, error: 'A custom endpoint needs its base URL (X-OI-Url).' };
+  }
   try {
-    const call = chat ?? createChat(creds.provider, creds.key ?? '', model);
+    const call = chat ?? chatFor(creds.provider, creds.key ?? '', model, creds.baseUrl);
     const seen = canSeeImages(creds.provider, model) ? await framesFor(last) : { images: [], note: '' };
     const out = await call({
       system: systemPrompt(), user: userPrompt(messages, context) + seen.note, json: true, maxTokens: 1400, temperature: 0.3, timeoutMs: 45_000, signal,

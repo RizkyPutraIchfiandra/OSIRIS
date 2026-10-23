@@ -9,8 +9,10 @@ import { NextResponse } from 'next/server';
 import { getClientIp, isRateLimited } from '@/lib/ssrf-guard';
 import { DEPTHS, askRun, estimateCalls } from './engine';
 import {
-  PROVIDERS, ProviderError, createChat, isPlausibleKey, isPlausibleModel, isProviderId, providerInfo, type ChatFn, type ProviderId,
+  PROVIDERS, ProviderError, isPlausibleKey, isPlausibleModel, isProviderId, providerInfo, type ChatFn, type ProviderId,
 } from './providers';
+import { validateCustomBase } from './endpoint';
+import { chatFor } from './chat';
 import { LIMITS, startRun, type Run, type StartDeps } from './runs';
 import { SEED_MAX, type SeedScope } from './depths';
 import { oneOf, text } from './parse';
@@ -68,24 +70,43 @@ export interface Credentials {
   provider?: ProviderId;
   key?: string;
   model?: string;
+  /** The checked base URL of a `custom` endpoint. */
+  baseUrl?: string;
 }
 
-/** Provider, key and model from the headers, the provider and model also from the body. */
+/** Provider, key, model and endpoint from the headers, also from the body. */
 export function credentials(req: Request, body: Record<string, unknown> = {}): Credentials | { error: string } {
   const h = (n: string) => req.headers.get(n)?.trim() || '';
   const auth = h('authorization');
   const key = h('x-oi-key') || (/^bearer\s+/i.test(auth) ? auth.replace(/^bearer\s+/i, '').trim() : '');
   const providerRaw = h('x-oi-provider') || (typeof body.provider === 'string' ? body.provider : '');
   const modelRaw = h('x-oi-model') || (typeof body.model === 'string' ? body.model : '');
-  if (providerRaw && !isProviderId(providerRaw.toLowerCase())) {
+  const baseRaw = h('x-oi-url')
+    || (typeof body.base_url === 'string' ? body.base_url : '')
+    || (typeof body.baseUrl === 'string' ? body.baseUrl : '');
+  const provider = providerRaw ? providerRaw.toLowerCase() : '';
+  if (provider && !isProviderId(provider)) {
     return { error: `Unknown provider. Use one of: ${PROVIDERS.map(p => p.id).join(', ')}.` };
   }
   if (key && !isPlausibleKey(key)) return { error: 'That does not look like an API key.' };
   if (modelRaw && !isPlausibleModel(modelRaw)) return { error: 'That does not look like a model id.' };
+
+  let baseUrl: string | undefined;
+  if (baseRaw) {
+    if (provider && provider !== 'custom') return { error: 'A base URL goes with the custom provider (X-OI-Provider: custom).' };
+    const checked = validateCustomBase(baseRaw);
+    if (!checked.ok) return { error: checked.error };
+    baseUrl = checked.url;
+  }
+  if (provider === 'custom' && !baseUrl) {
+    return { error: 'A custom endpoint needs its base URL (X-OI-Url), e.g. https://api.example.com/v1.' };
+  }
+
   return {
-    provider: providerRaw ? (providerRaw.toLowerCase() as ProviderId) : undefined,
+    provider: provider ? (provider as ProviderId) : undefined,
     key: key || undefined,
     model: modelRaw || undefined,
+    baseUrl,
   };
 }
 
@@ -112,6 +133,7 @@ export function startPrediction(args: PredictArgs, creds: Credentials, ip: strin
   if (!creds.provider) return { ok: false, status: 400, error: 'Choose a provider (X-OI-Provider).' };
   const info = providerInfo(creds.provider);
   if (!creds.key && info.needsKey) return { ok: false, status: 401, error: `An API key for ${info.name} is required (X-OI-Key or Authorization: Bearer).` };
+  if (creds.provider === 'custom' && !creds.baseUrl) return { ok: false, status: 400, error: 'A custom endpoint needs its base URL (X-OI-Url).' };
   const depth = oneOf(args.depth, ['quick', 'standard', 'deep'] as const, 'standard') as Depth;
   return startRun({
     question,
@@ -122,6 +144,7 @@ export function startPrediction(args: PredictArgs, creds: Credentials, ip: strin
     provider: creds.provider,
     model: creds.model || info.defaultModel,
     key: creds.key ?? '',
+    baseUrl: creds.baseUrl,
     ip,
   }, deps);
 }
@@ -138,7 +161,7 @@ export async function askPrediction(run: Run, targetRaw: unknown, messageRaw: un
   if (!creds.key && providerInfo(provider).needsKey) return { ok: false, status: 401, error: 'Asking uses your own key again (X-OI-Key or Authorization: Bearer).' };
   const model = creds.model || (provider === run.state.provider ? run.state.model : providerInfo(provider).defaultModel);
   try {
-    const { reply } = await askRun(run.state, target, message, chat ?? createChat(provider, creds.key ?? '', model), signal);
+    const { reply } = await askRun(run.state, target, message, chat ?? chatFor(provider, creds.key ?? '', model, creds.baseUrl), signal);
     return { ok: true, reply, target };
   } catch (err) {
     if (err instanceof ProviderError) {
@@ -161,14 +184,17 @@ export function describe(origin: string) {
     version: OI_VERSION,
     about: 'A prediction engine on live OSIRIS intelligence: the actors who decide a question, simulated against each other in parallel worlds. Bring your own model key.',
     credit: CREDIT,
-    providers: PROVIDERS.map(p => ({ id: p.id, name: p.name, default_model: p.defaultModel, suggested_models: p.suggested, key_url: p.keyUrl })),
+    providers: PROVIDERS.map(p => ({
+      id: p.id, name: p.name, default_model: p.defaultModel, suggested_models: p.suggested, key_url: p.keyUrl,
+      ...(p.id === 'custom' ? { base_url_required: true, base_url_header: 'X-OI-Url' } : {}),
+    })),
     depths: (Object.keys(DEPTHS) as Depth[]).map(d => ({ id: d, ...DEPTHS[d], model_calls: estimateCalls(d) })),
     limits: {
       runs_at_once_per_address: LIMITS.perIpActive,
       runs_per_10_minutes_per_address: LIMITS.perIpStarts,
       run_kept_for_hours: LIMITS.ttlMs / 3_600_000,
     },
-    auth: 'Send X-OI-Provider and X-OI-Key (or Authorization: Bearer <key>), optionally X-OI-Model. Keys are used for your run and never stored.',
+    auth: 'Send X-OI-Provider and X-OI-Key (or Authorization: Bearer <key>), optionally X-OI-Model. For X-OI-Provider: custom, also send X-OI-Url with an HTTPS OpenAI-compatible base URL. Keys are used for your run and never stored.',
     endpoints: {
       start: `POST ${origin}/api/oi/runs`,
       run: `GET ${origin}/api/oi/runs/{id}?wait=30`,

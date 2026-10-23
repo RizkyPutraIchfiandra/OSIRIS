@@ -154,3 +154,43 @@ describe('listModels', () => {
     expect(out.models[0].id).toBe('qwen-plus');
   });
 });
+
+describe('custom (OpenAI-compatible) endpoints', () => {
+  it('calls chat completions on the visitor’s base URL', async () => {
+    const { f, calls } = fakeFetch(openaiReply('hello'));
+    const out = await createChat('custom', KEY, 'my-model', f, 'https://api.example.com/v1/')(REQ);
+    expect(out.text).toBe('hello');
+    expect(calls[0].url).toBe('https://api.example.com/v1/chat/completions');
+    expect((calls[0].init.headers as Record<string, string>).authorization).toBe(`Bearer ${KEY}`);
+    expect(calls[0].body).toMatchObject({ model: 'my-model' });
+    expect(calls[0].body.max_tokens).toBe(500);
+  });
+
+  it('refuses a non-HTTPS base before any request is made', () => {
+    const { f, calls } = fakeFetch();
+    expect(() => createChat('custom', KEY, 'my-model', f, 'http://api.example.com/v1')).toThrow(ProviderError);
+    expect(calls).toHaveLength(0);
+  });
+
+  it('lists models from the endpoint, in either OpenAI or local-server shape', async () => {
+    const { f } = fakeFetch(jsonRes({
+      data: [{ id: 'llama-3.1-70b' }, { id: 'text-embedding-3-small' }],
+      models: [{ name: 'qwen2.5:7b' }],
+    }));
+    const { models, listed } = await listModels('custom', KEY, f, 'https://api.example.com/v1');
+    expect(listed).toBe(true);
+    expect(models.map(m => m.id)).toEqual(['llama-3.1-70b', 'qwen2.5:7b']);
+  });
+
+  it('falls back to the suggested names when the endpoint cannot list', async () => {
+    const { f } = fakeFetch(jsonRes({}, 404));
+    const out = await listModels('custom', KEY, f, 'https://api.example.com/v1');
+    expect(out.listed).toBe(false);
+    expect(out.models[0].id).toBe('gpt-4o-mini');
+  });
+
+  it('is listed as a provider that needs a key and a base URL', () => {
+    expect(PROVIDERS.map(p => p.id)).toContain('custom');
+    expect(pickModel('custom', [])).toBe('gpt-4o-mini');
+  });
+});

@@ -23,6 +23,8 @@ export interface Engine {
   provider: ProviderId;
   model: string;
   remember: boolean;
+  /** The visitor's own OpenAI-compatible base URL, for the custom provider. */
+  baseUrl?: string;
 }
 
 export interface HistoryEntry {
@@ -61,7 +63,12 @@ function write(kind: 'local' | 'session', k: string, v: string | null) {
 export function loadEngine(): Engine | null {
   try {
     const e = JSON.parse(read('local', ENGINE_KEY) || 'null');
-    if (e && typeof e.provider === 'string' && typeof e.model === 'string') return { provider: e.provider, model: e.model, remember: Boolean(e.remember) };
+    if (e && typeof e.provider === 'string' && typeof e.model === 'string') {
+      return {
+        provider: e.provider, model: e.model, remember: Boolean(e.remember),
+        ...(typeof e.baseUrl === 'string' ? { baseUrl: e.baseUrl } : {}),
+      };
+    }
   } catch { /* corrupt: start over */ }
   return null;
 }
@@ -112,6 +119,7 @@ export const headersFor = (engine: Engine, key: string): Record<string, string> 
   'x-oi-provider': engine.provider,
   'x-oi-model': engine.model,
   ...(key ? { 'x-oi-key': key } : {}),
+  ...(engine.provider === 'custom' && engine.baseUrl ? { 'x-oi-url': engine.baseUrl } : {}),
 });
 
 /** What went wrong, in OI's words if it gave any. */
@@ -296,11 +304,18 @@ export function useOi() {
 export type OiClient = ReturnType<typeof useOi>;
 
 /** Checks a key by listing the models it can use. */
-export async function checkKey(provider: ProviderId, key: string): Promise<{ models: { id: string; name: string }[]; preferred: string; listed: boolean } | { error: string }> {
+export async function checkKey(
+  provider: ProviderId, key: string, baseUrl?: string,
+): Promise<{ models: { id: string; name: string }[]; preferred: string; listed: boolean } | { error: string }> {
   const res = await fetch('/api/oi/models', {
     method: 'POST',
-    headers: { 'content-type': 'application/json', 'x-oi-provider': provider, ...(key ? { 'x-oi-key': key } : {}) },
-    body: JSON.stringify({ provider }),
+    headers: {
+      'content-type': 'application/json',
+      'x-oi-provider': provider,
+      ...(key ? { 'x-oi-key': key } : {}),
+      ...(provider === 'custom' && baseUrl ? { 'x-oi-url': baseUrl } : {}),
+    },
+    body: JSON.stringify({ provider, ...(provider === 'custom' && baseUrl ? { base_url: baseUrl } : {}) }),
   }).catch(() => null);
   if (!res) return { error: 'Could not reach OI.' };
   if (!res.ok) return { error: await errorOf(res) };

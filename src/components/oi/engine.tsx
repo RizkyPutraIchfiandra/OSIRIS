@@ -4,8 +4,9 @@
  */
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowRight, Check, ChevronDown, Database, Eye, EyeOff, FileText, KeyRound, Loader2, Upload, X } from 'lucide-react';
+import { ArrowRight, Check, ChevronDown, Database, Eye, EyeOff, FileText, KeyRound, Link2, Loader2, Upload, X } from 'lucide-react';
 import { PROVIDERS, providerInfo, type ProviderId } from '@/lib/oi/providers';
+import { validateCustomBase } from '@/lib/oi/endpoint';
 import { DEPTHS, PANEL_SEED_MAX, SEED_MAX, estimateCalls, seedCost, type SeedScope } from '@/lib/oi/depths';
 import { checkKey, forgetKey, loadKey, saveEngine, saveKey, type Engine } from '@/lib/oi/client';
 import type { Depth, Frame } from '@/lib/oi/types';
@@ -33,6 +34,8 @@ export function EngineSheet({ engine, setEngine, keyValue, setKey, onDone }: {
   engine: Engine; setEngine: (e: Engine) => void; keyValue: string; setKey: (k: string) => void; onDone: () => void;
 }) {
   const info = providerInfo(engine.provider);
+  const isCustom = engine.provider === 'custom';
+  const baseUrl = engine.baseUrl ?? '';
   const [reveal, setReveal] = useState(false);
   const [models, setModels] = useState<{ id: string; name: string }[] | null>(null);
   const [listed, setListed] = useState(false);
@@ -48,10 +51,31 @@ export function EngineSheet({ engine, setEngine, keyValue, setKey, onDone }: {
     setStatus({ kind: 'idle', text: '' });
   };
 
+  const setBase = (value: string) => {
+    const next = { ...engine, baseUrl: value };
+    setEngine(next);
+    saveEngine(next);
+    setModels(null);
+    setListed(false);
+    setStatus({ kind: 'idle', text: '' });
+  };
+
   const check = async () => {
+    if (!keyValue.trim()) { setStatus({ kind: 'error', text: isCustom ? 'Enter the key your endpoint expects.' : 'Enter the key first.' }); return; }
+    let base = engine.baseUrl;
+    if (isCustom) {
+      const checked = validateCustomBase(base);
+      if (!checked.ok) { setStatus({ kind: 'error', text: checked.error }); return; }
+      base = checked.url;
+      if (base !== engine.baseUrl) {
+        const next = { ...engine, baseUrl: base };
+        setEngine(next);
+        saveEngine(next);
+      }
+    }
     setStatus({ kind: 'checking', text: '' });
     saveKey(engine.provider, keyValue, engine.remember);
-    const out = await checkKey(engine.provider, keyValue);
+    const out = await checkKey(engine.provider, keyValue, base);
     if ('error' in out) { setStatus({ kind: 'error', text: out.error }); return; }
     setModels(out.models);
     setListed(out.listed);
@@ -59,7 +83,12 @@ export function EngineSheet({ engine, setEngine, keyValue, setKey, onDone }: {
     const next = { ...engine, model };
     setEngine(next);
     saveEngine(next);
-    setStatus({ kind: 'ok', text: `Key accepted · ${out.models.length} model${out.models.length === 1 ? '' : 's'} available` });
+    setStatus({
+      kind: 'ok',
+      text: out.listed
+        ? `${isCustom ? 'Endpoint reachable' : 'Key accepted'} · ${out.models.length} model${out.models.length === 1 ? '' : 's'} available`
+        : `${isCustom ? 'Endpoint reachable' : 'Key accepted'} · it does not list models; type a model name`,
+    });
   };
 
   const setModel = (model: string) => {
@@ -69,7 +98,7 @@ export function EngineSheet({ engine, setEngine, keyValue, setKey, onDone }: {
   };
 
   const known = useMemo(() => info.suggested.map(id => ({ id, name: id })), [info.suggested]);
-  const ready = !info.needsKey || keyValue.length > 0;
+  const ready = (!info.needsKey || keyValue.length > 0) && (!isCustom || Boolean(baseUrl));
 
   return (
     <section className="px-4 py-4 border-b border-[var(--border-secondary)] flex flex-col gap-4" style={{ background: gold(0.025) }}>
@@ -79,7 +108,7 @@ export function EngineSheet({ engine, setEngine, keyValue, setKey, onDone }: {
           {PROVIDERS.map(p => {
             const on = engine.provider === p.id;
             return (
-              <button key={p.id} onClick={() => pickProvider(p.id)} title={p.name} aria-pressed={on}
+              <button key={p.id} onClick={() => pickProvider(p.id)} title={p.id === 'custom' ? 'Any OpenAI-compatible endpoint: enter its base URL and key' : p.name} aria-pressed={on}
                 className={`h-8 px-1.5 rounded-md border text-[9.5px] font-mono tracking-[0.08em] uppercase truncate transition-colors ${on ? 'border-[var(--border-active)] bg-[var(--gold-primary)]/10 text-[var(--gold-light)]' : 'border-[var(--border-secondary)] bg-white/[0.02] text-[var(--text-secondary)] hover:bg-[var(--hover-accent)] hover:text-[var(--text-heading)]'}`}>
                 {shortName(p.name)}
               </button>
@@ -88,6 +117,24 @@ export function EngineSheet({ engine, setEngine, keyValue, setKey, onDone }: {
         </div>
       </div>
 
+      {isCustom && (
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="oi-endpoint" className="text-[10px] font-mono tracking-[0.12em] uppercase text-[var(--text-muted)]">API URL</label>
+          <div className="relative">
+            <Link2 className="w-3 h-3 absolute left-2.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
+            <input
+              id="oi-endpoint" type="url" value={baseUrl} onChange={e => setBase(e.target.value)}
+              placeholder="https://api.example.com/v1" autoComplete="off" spellCheck={false}
+              data-1p-ignore data-lpignore="true" aria-label="Endpoint base URL"
+              className={`${FIELD} h-8 pl-7 pr-2 text-[11px] font-mono`}
+            />
+          </div>
+          <p className="text-[10.5px] leading-snug text-[var(--text-muted)]">
+            The base of an OpenAI-compatible API, HTTPS only, with <span className="font-mono">/v1</span> if your endpoint needs it. OI calls <span className="font-mono">/chat/completions</span> and <span className="font-mono">/models</span> on it.
+          </p>
+        </div>
+      )}
+
       {info.needsKey ? (
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-1.5">
@@ -95,15 +142,16 @@ export function EngineSheet({ engine, setEngine, keyValue, setKey, onDone }: {
               <KeyRound className="w-3 h-3 absolute left-2.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
               <input
                 type={reveal ? 'text' : 'password'} value={keyValue} onChange={e => { setKey(e.target.value.trim()); setStatus({ kind: 'idle', text: '' }); }}
-                placeholder={`${info.name} key  ${info.keyHint}`} autoComplete="off" spellCheck={false}
-                data-1p-ignore data-lpignore="true" aria-label={`${info.name} API key`}
+                placeholder={isCustom ? 'Endpoint key  sk-…' : `${info.name} key  ${info.keyHint}`} autoComplete="off" spellCheck={false}
+                data-1p-ignore data-lpignore="true" aria-label={isCustom ? 'Endpoint API key' : `${info.name} API key`}
                 className={`${FIELD} h-8 pl-7 pr-8 text-[11px] font-mono`}
               />
               <button onClick={() => setReveal(v => !v)} className="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-heading)]" aria-label={reveal ? 'Hide key' : 'Show key'}>
                 {reveal ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
               </button>
             </div>
-            <button onClick={check} disabled={!keyValue || status.kind === 'checking'} className="oi-btn !h-8">
+            <button onClick={check} disabled={status.kind === 'checking'} className="oi-btn !h-8"
+              title="Check the key and list every model it can use">
               {status.kind === 'checking' ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Check'}
             </button>
           </div>
@@ -120,8 +168,8 @@ export function EngineSheet({ engine, setEngine, keyValue, setKey, onDone }: {
               }} />
               Remember on this device
             </label>
-            <a href={info.keyUrl} target="_blank" rel="noopener noreferrer" className="ml-auto text-[var(--text-secondary)] hover:text-[var(--gold-light)]">Get a key ↗</a>
-            {keyValue && <button onClick={() => { forgetKey(engine.provider); setKey(''); setModels(null); setListed(false); setStatus({ kind: 'idle', text: '' }); }} className="text-[var(--text-secondary)] hover:text-[var(--alert-red)]">Forget</button>}
+            {info.keyUrl && <a href={info.keyUrl} target="_blank" rel="noopener noreferrer" className="ml-auto text-[var(--text-secondary)] hover:text-[var(--gold-light)]">Get a key ↗</a>}
+            {keyValue && <button onClick={() => { forgetKey(engine.provider); setKey(''); setModels(null); setListed(false); setStatus({ kind: 'idle', text: '' }); }} className={`${info.keyUrl ? '' : 'ml-auto '}text-[var(--text-secondary)] hover:text-[var(--alert-red)]`}>Forget</button>}
           </div>
         </div>
       ) : (
@@ -137,12 +185,18 @@ export function EngineSheet({ engine, setEngine, keyValue, setKey, onDone }: {
         </div>
         <ModelPicker provider={engine.provider} models={models ?? known} value={engine.model} onChange={setModel}
           suggested={info.suggested} defaultModel={info.defaultModel} listed={listed && !!models} />
-        {!models && info.needsKey && <p className="text-[10.5px] text-[var(--text-muted)]">Check the key to list every model it can use, grouped by family.</p>}
+        {!models && info.needsKey && (
+          <p className="text-[10.5px] text-[var(--text-muted)]">
+            {isCustom ? 'Check the key to list every model your endpoint serves, then choose one here.' : 'Check the key to list every model it can use, grouped by family.'}
+          </p>
+        )}
       </div>
 
       {info.needsKey && (
         <p className="text-[10.5px] leading-relaxed text-[var(--text-muted)]">
-          Your key stays in this browser{engine.remember ? '' : ' tab'} and reaches OSIRIS only inside your requests, which pass it to {info.name} for your run. It is never stored on the server or logged. A prediction makes about 30 to 130 model calls, by depth, billed to your {info.name} account.
+          {isCustom
+            ? <>Your key and endpoint stay in this browser{engine.remember ? '' : ' tab'} and reach OSIRIS only inside your requests. The server calls your endpoint through its SSRF guard: HTTPS only, a public host, and every redirect checked. Nothing is stored or logged. A prediction makes about 30 to 130 calls, billed to your endpoint.</>
+            : <>Your key stays in this browser{engine.remember ? '' : ' tab'} and reaches OSIRIS only inside your requests, which pass it to {info.name} for your run. It is never stored on the server or logged. A prediction makes about 30 to 130 model calls, by depth, billed to your {info.name} account.</>}
         </p>
       )}
     </section>
