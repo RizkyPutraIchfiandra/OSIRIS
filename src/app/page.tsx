@@ -1793,6 +1793,17 @@ export default function Dashboard() {
         
         <TokenPanel />
 
+        {/* The Indonesia-focused surface lives at /watch; this deployment
+            serves the full dashboard, so give it a door. */}
+        <a
+          href="/watch"
+          title="NusaWatch — pantauan gempa Indonesia"
+          className="pointer-events-auto flex items-center gap-1.5 rounded-full border border-[var(--gold-primary)]/40 px-2.5 py-1 text-[var(--gold-primary)] transition-colors hover:bg-[var(--gold-primary)]/10"
+        >
+          <Activity size={11} />
+          <span className="font-bold tracking-[0.15em]">NUSAWATCH</span>
+        </a>
+
         <SupportMenu />
       </motion.div>
 
@@ -1803,6 +1814,14 @@ export default function Dashboard() {
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: revealed ? 1 : 0 }} transition={hudIn(0.35)} className="absolute top-3 right-3 z-[200] pointer-events-auto flex flex-col items-end gap-1.5">
           <div className="flex items-center gap-2">
             <TokenPanel />
+            <a
+              href="/watch"
+              title="NusaWatch — pantauan gempa Indonesia"
+              aria-label="NusaWatch"
+              className="pointer-events-auto flex h-7 w-7 items-center justify-center rounded-full border border-[var(--gold-primary)]/40 text-[var(--gold-primary)]"
+            >
+              <Activity size={12} />
+            </a>
             <SupportMenu compact />
           </div>
         </motion.div>
