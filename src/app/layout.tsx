@@ -127,53 +127,6 @@ export const metadata: Metadata = {
   },
 };
 
-// JSON-LD Structured Data
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "WebApplication",
-  name: "OSIRIS — OSINT Toolkit & Intelligence Platform",
-  alternateName: ["OSIRIS", "OsirisAI", "Osiris OSINT"],
-  url: SITE_URL,
-  description: SITE_DESCRIPTION,
-  applicationCategory: "SecurityApplication",
-  operatingSystem: "Web",
-  browserRequirements: "Requires a modern web browser",
-  offers: {
-    "@type": "Offer",
-    price: "0",
-    priceCurrency: "USD",
-    availability: "https://schema.org/InStock",
-  },
-  featureList: [
-    "Nmap port scanning from the browser — no install required",
-    "DNS record lookup (A, AAAA, MX, NS, TXT, CNAME)",
-    "WHOIS domain registration lookup",
-    "SSL/TLS certificate transparency search",
-    "BGP routing & ASN lookup",
-    "IP geolocation & threat intelligence",
-    "Real-time flight tracking via ADS-B",
-    "Satellite tracking (including ISS)",
-    "Worldwide CCTV camera monitoring",
-    "Earthquake monitoring (USGS live feed)",
-    "Wildfire detection (NASA FIRMS satellite data)",
-    "Nuclear facility mapping (curated reference list, not a live feed)",
-    "Severe weather alerts & tracking",
-    "Cyber threat & CVE intelligence",
-    "Space weather & solar storm monitoring",
-    "GPS jamming detection",
-    "Defense & commodity market tracking",
-    "SIGINT news aggregation feed",
-    "Interactive 3D globe with day/night cycle",
-    "Region intelligence dossier reports",
-  ],
-  screenshot: `${SITE_URL}/og-image.png`,
-  author: {
-    "@type": "Organization",
-    name: "Osiris Project",
-    url: SITE_URL,
-  },
-};
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -188,14 +141,7 @@ export default function RootLayout({
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-        <link rel="canonical" href={SITE_URL} />
         
-        {/* JSON-LD Structured Data */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
-
       </head>
       <body className="antialiased">
         <ErrorBoundary name="OSIRIS Core">

@@ -18,6 +18,7 @@ import type { TransitStatus } from '@/lib/transit-layer';
 import type { LiveDetection } from '@/lib/malware-intel';
 import ScaleBar from '@/components/ScaleBar';
 import ErrorBoundary from '@/components/ErrorBoundary';
+import OsirisStructuredData from '@/components/OsirisStructuredData';
 import { applySettings, loadSavedSettings } from '@/lib/style-tokens';
 import SharePanel from '@/components/SharePanel';
 import ViewPresets from '@/components/ViewPresets';
@@ -1362,6 +1363,9 @@ export default function Dashboard() {
 
   return (
     <main className="fixed inset-0 w-full h-full bg-[var(--bg-void)] overflow-hidden">
+
+      {/* Structured data for this page only; see src/components/OsirisStructuredData.tsx */}
+      <OsirisStructuredData />
 
       {/* ── SPLASH ── */}
       <AnimatePresence onExitComplete={() => setSplashGone(true)}>
