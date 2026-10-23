@@ -5,6 +5,7 @@ import { formatAge, formatCount } from '@/lib/nusawatch/format';
 import type { EventCategory, EventsResponse, RegionId } from '@/lib/nusawatch/types';
 import { EventDetail } from './EventDetail';
 import { EventList } from './EventList';
+import { EventMap } from './EventMap';
 import { FilterBar } from './FilterBar';
 import { SourceStatus } from './SourceStatus';
 import { EmptyState, ErrorState, LoadingState, PartialNotice } from './States';
@@ -239,7 +240,19 @@ export function EventExplorer() {
             <ErrorState message={error} onRetry={retry} />
           </div>
         ) : (
-          <div className="nw-grid">
+          <>
+            {data && data.events.length > 0 && (
+              <EventMap
+                events={data.events}
+                selectedId={selectedKey}
+                onSelect={id => {
+                  setSelectedId(id);
+                  setDetailOpen(true);
+                }}
+              />
+            )}
+
+            <div className="nw-grid">
             <section className="nw-panel" aria-label="Daftar peristiwa">
               <div className="nw-panel-head">
                 <span>
@@ -285,6 +298,7 @@ export function EventExplorer() {
               )}
             </aside>
           </div>
+          </>
         )}
 
         {data && <SourceStatus sources={data.sources} />}

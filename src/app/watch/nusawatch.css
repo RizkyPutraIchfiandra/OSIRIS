@@ -584,6 +584,53 @@
   border-bottom-color: var(--nw-accent);
 }
 
+/* ── Map ────────────────────────────────────────────────────────────────── */
+
+.nw-map-panel {
+  margin-bottom: 18px;
+}
+
+.nw-map-wrap {
+  position: relative;
+}
+
+.nw-map {
+  height: 380px;
+  background: var(--nw-surface-2);
+}
+
+.nw-map .maplibregl-ctrl-attrib {
+  font-size: 10px;
+  background: rgba(7, 12, 15, 0.78);
+  color: var(--nw-muted);
+}
+
+.nw-map .maplibregl-ctrl-attrib a {
+  color: var(--nw-muted);
+}
+
+.nw-map-hint {
+  font-size: 11px;
+  color: var(--nw-dim);
+}
+
+.nw-map-overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  padding: 18px;
+  text-align: center;
+  background: rgba(7, 12, 15, 0.72);
+  color: var(--nw-muted);
+  font-size: 13px;
+}
+
+.nw-map-overlay--error {
+  color: var(--nw-warn);
+}
+
 /* ── Source status ──────────────────────────────────────────────────────── */
 
 .nw-sources {
@@ -781,6 +828,14 @@
     padding: 0 14px;
   }
 
+  .nw-map {
+    height: 280px;
+  }
+
+  .nw-map-hint {
+    display: none;
+  }
+
   .nw-filters {
     grid-template-columns: 1fr;
   }
@@ -811,6 +866,13 @@
 
   .nw-stats {
     gap: 18px;
+  }
+}
+
+@media (max-width: 559px) {
+  /* The source panel already names BMKG; a three-line header meta is noise. */
+  .nw-header-meta {
+    display: none;
   }
 }
 

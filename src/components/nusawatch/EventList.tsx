@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { formatDepth, formatEventTime, formatMagnitude } from '@/lib/nusawatch/format';
 import { regionLabel } from '@/lib/nusawatch/regions';
 import type { IntelligenceEvent } from '@/lib/nusawatch/types';
@@ -17,8 +18,20 @@ export function EventList({
   selectedId: string | null;
   onSelect: (id: string) => void;
 }) {
+  const listRef = useRef<HTMLUListElement | null>(null);
+
+  /* Keep the map and the list showing the same thing: selecting a marker must
+     bring its row into view, not leave the highlight somewhere off-screen. */
+  useEffect(() => {
+    if (!selectedId) return;
+    const row = listRef.current?.querySelector<HTMLElement>(
+      `[data-event-id="${selectedId}"]`,
+    );
+    row?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  }, [selectedId]);
+
   return (
-    <ul className="nw-list">
+    <ul className="nw-list" ref={listRef}>
       {events.map(event => {
         const magnitude =
           typeof event.severity?.value === 'number'
@@ -32,6 +45,7 @@ export function EventList({
             <button
               type="button"
               className="nw-item"
+              data-event-id={event.id}
               aria-current={event.id === selectedId}
               onClick={() => onSelect(event.id)}
             >
